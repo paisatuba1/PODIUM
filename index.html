@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PODIUM | Premium Betting</title>
+    <title>PODIUM | Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #0F172A; color: #F8FAFC; }
         .hidden { display: none; }
         
-        /* Animación de Pulso para el Botón */
         @keyframes pulse-premium {
             0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); transform: scale(1); }
             70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); transform: scale(0.98); }
@@ -18,35 +17,33 @@
         }
         .btn-loading { animation: pulse-premium 1.5s infinite; pointer-events: none; opacity: 0.8; }
 
-        /* Estilo Premium */
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .gold-gradient { background: linear-gradient(135deg, #FDE047 0%, #EAB308 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .podium-slot { height: 70px; border-radius: 20px; display: flex; align-items: center; padding: 0 25px; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.05); }
-        .slot-empty { background: rgba(255, 255, 255, 0.03); color: #64748B; font-size: 10px; letter-spacing: 2px; }
-        .slot-filled { background: #1E3A8A; color: white; border-color: #3B82F6; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); }
+        .podium-slot { height: 60px; border-radius: 18px; display: flex; align-items: center; padding: 0 20px; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; font-weight: 800; font-size: 11px; }
+        .slot-empty { background: rgba(255, 255, 255, 0.03); color: #64748B; letter-spacing: 1px; }
+        .slot-filled { background: #1E3A8A; color: white; border-color: #3B82F6; }
 
-        .band-card { background: rgba(255,255,255,0.05); transition: all 0.2s; border-radius: 18px; }
-        .band-card:active { transform: scale(0.95); background: rgba(59, 130, 246, 0.2); }
-        .band-selected { opacity: 0.3; filter: grayscale(1); pointer-events: none; }
+        .band-card { background: rgba(255,255,255,0.05); transition: all 0.2s; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .band-selected { opacity: 0.2; filter: grayscale(1); pointer-events: none; }
+        
+        .badge-done { background: #059669; color: white; font-size: 8px; padding: 2px 8px; border-radius: 6px; font-weight: 900; }
     </style>
 </head>
 <body class="antialiased">
 
-    <div id="loader" class="hidden fixed inset-0 bg-slate-900/80 z-50 flex flex-col items-center justify-center">
-        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-[10px] font-black tracking-[0.3em] text-blue-400">PROCESANDO</p>
+    <div id="loader" class="hidden fixed inset-0 bg-slate-900/90 z-50 flex flex-col items-center justify-center">
+        <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-[9px] font-black tracking-[0.3em] text-blue-400 uppercase">SINCRONIZANDO PODIUM</p>
     </div>
 
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-6">
-        <div class="glass-card p-10 rounded-[45px] w-full max-w-sm text-center shadow-2xl">
+        <div class="glass-card p-10 rounded-[40px] w-full max-w-sm text-center">
             <h1 class="text-4xl font-black mb-1 tracking-tighter">PODIUM</h1>
-            <p class="text-blue-400 text-[9px] mb-12 uppercase tracking-[0.4em] font-bold">PREMIUM EXPERIENCE</p>
-            
+            <p class="text-blue-400 text-[8px] mb-12 uppercase tracking-[0.5em] font-bold">PREMIUM EXPERIENCE</p>
             <div class="space-y-4">
-                <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-5 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-blue-500 font-bold text-sm text-center uppercase text-white">
-                <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-5 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-blue-500 text-center text-2xl tracking-widest font-bold text-white">
-                <button id="btn-login" onclick="login()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg text-xs tracking-[0.2em] uppercase mt-4 transition-all active:scale-95">INGRESAR</button>
+                <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-5 bg-white/5 border border-white/10 rounded-2xl outline-none text-center font-bold text-sm uppercase text-white">
+                <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-5 bg-white/5 border border-white/10 rounded-2xl outline-none text-center text-2xl tracking-widest font-bold text-white">
+                <button id="btn-login" onclick="login()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black text-xs tracking-widest uppercase mt-4">INGRESAR</button>
             </div>
         </div>
     </div>
@@ -54,54 +51,48 @@
     <div id="screen-menu" class="hidden p-6 max-w-md mx-auto flex flex-col min-h-screen">
         <div class="flex justify-between items-end mb-12 mt-6">
             <div>
-                <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">BIENVENIDO AL</p>
-                <h2 class="text-2xl font-black text-white uppercase">PODIUM</h2>
-                <p id="user-name" class="text-blue-400 font-bold text-xs uppercase mt-1">---</p>
+                <p class="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">BIENVENIDO AL</p>
+                <h2 class="text-2xl font-black text-white uppercase tracking-tighter">PODIUM</h2>
+                <p id="user-display" class="text-blue-400 font-bold text-[10px] uppercase mt-1">---</p>
             </div>
-            <button onclick="logout()" class="text-[9px] font-black uppercase text-slate-500 border border-white/10 px-4 py-2 rounded-xl">SALIR</button>
+            <button onclick="logout()" class="text-[8px] font-black uppercase text-slate-500 border border-white/10 px-4 py-2 rounded-xl">SALIR</button>
         </div>
 
-        <p class="font-black text-slate-500 text-[9px] uppercase mb-6 tracking-widest">CATEGORÍAS ACTIVAS</p>
-        <div id="categories-container" class="grid grid-cols-1 gap-4">
-            </div>
+        <p class="font-black text-slate-500 text-[9px] uppercase mb-6 tracking-widest">CATEGORÍAS DEL CONCURSO</p>
+        <div id="categories-container" class="space-y-4"></div>
     </div>
 
     <div id="screen-bet" class="hidden p-6 max-w-md mx-auto flex flex-col min-h-screen pb-32">
-        <button onclick="nav('screen-menu')" class="text-[9px] font-black text-slate-500 uppercase mb-8 tracking-widest flex items-center">
-            <span class="mr-2 text-lg">←</span> VOLVER AL MENÚ
-        </button>
-        
-        <h2 id="active-category" class="text-3xl font-black text-white uppercase mb-2">---</h2>
-        <p class="text-blue-400 text-[9px] font-black uppercase tracking-widest mb-10">DEFINA SUS GANADORES</p>
+        <button onclick="nav('screen-menu')" class="text-[9px] font-black text-slate-500 uppercase mb-8 tracking-widest">← VOLVER AL MENÚ</button>
+        <h2 id="active-category" class="text-3xl font-black text-white uppercase mb-1">---</h2>
+        <p class="text-blue-400 text-[9px] font-black uppercase tracking-widest mb-10">ARMA TU TRIPLETA GANADORA</p>
 
-        <div class="space-y-4 mb-12">
-            <div id="slot-1" class="podium-slot slot-empty">1° PRIMER LUGAR</div>
-            <div id="slot-2" class="podium-slot slot-empty">2° SEGUNDO LUGAR</div>
-            <div id="slot-3" class="podium-slot slot-empty">3° TERCER LUGAR</div>
+        <div class="space-y-3 mb-10">
+            <div id="slot-1" class="podium-slot slot-empty">1° LUGAR</div>
+            <div id="slot-2" class="podium-slot slot-empty">2° LUGAR</div>
+            <div id="slot-3" class="podium-slot slot-empty">3° LUGAR</div>
         </div>
 
-        <div id="bands-container" class="grid grid-cols-1 gap-3">
-            </div>
+        <div id="bands-container" class="space-y-2"></div>
 
-        <div class="fixed bottom-0 left-0 w-full p-8 bg-slate-950/80 backdrop-blur-xl border-t border-white/5">
-            <button id="btn-confirm" onclick="enviarApuesta()" disabled class="w-full bg-blue-600 text-white p-5 rounded-[25px] font-black uppercase tracking-[0.2em] text-[11px] opacity-50 shadow-2xl shadow-blue-500/20">CONFIRMAR PODIUM</button>
+        <div class="fixed bottom-0 left-0 w-full p-8 bg-slate-950/90 backdrop-blur-xl border-t border-white/5">
+            <button id="btn-confirm" onclick="enviarApuesta()" disabled class="w-full bg-blue-600 text-white p-5 rounded-[22px] font-black uppercase tracking-widest text-[10px] opacity-50 transition-all">CONFIRMAR MI PODIUM</button>
         </div>
     </div>
 
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbzcojhczsgf3sojkJvrGm1A8gZ-UtzVVw7nBsyA-G4E3huBWEeyfrWu2g3I-Ib7hIHx/exec";
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbxnR8maRK72haKoQBOWxk5aqFphS1l5WAGYMkM3QdMDAGP3cvCPQejLJi8JnEMryrMp/exec";
         
-        let session = { usuario: "", nombre: "", bandas: [] };
+        let session = { usuario: "", nombre: "", bandas: [], misApuestas: [] };
         let currentBet = [];
         let selectedCategory = "";
 
-        // PERSISTENCIA: Al cargar la página
         window.onload = () => {
-            const savedSession = localStorage.getItem('podium_session');
-            if (savedSession) {
-                session = JSON.parse(savedSession);
-                document.getElementById('user-name').innerText = session.nombre;
-                cargarDatos(); // Actualiza bandas en segundo plano
+            const saved = localStorage.getItem('podium_v1');
+            if (saved) {
+                session = JSON.parse(saved);
+                document.getElementById('user-display').innerText = session.nombre;
+                cargarDatos();
                 nav('screen-menu');
             }
         };
@@ -110,39 +101,32 @@
             const u = document.getElementById('user-input').value.trim();
             const p = document.getElementById('pass-input').value.trim();
             const btn = document.getElementById('btn-login');
-
             if(!u || !p) return;
 
             btn.classList.add('btn-loading');
             btn.innerText = "VERIFICANDO...";
 
             try {
-                const resp = await fetch(MOTOR_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: "login", user: u, pass: p })
-                });
+                const resp = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "login", user: u, pass: p }) });
                 const data = await resp.json();
                 
                 if(data.success) {
                     if(data.estatus !== "ACTIVO") {
-                        alert("⚠️ CUENTA INACTIVA: COMUNÍQUESE CON EL ADMINISTRADOR PARA ACTIVAR SU ACCESO.");
+                        alert("CUENTA INACTIVA. CONTACTE AL ADMINISTRADOR.");
                         resetLoginBtn();
                         return;
                     }
                     session.usuario = u;
                     session.nombre = data.nombre;
-                    localStorage.setItem('podium_session', JSON.stringify(session));
-                    document.getElementById('user-name').innerText = session.nombre;
+                    localStorage.setItem('podium_v1', JSON.stringify(session));
+                    document.getElementById('user-display').innerText = session.nombre;
                     await cargarDatos();
                     nav('screen-menu');
                 } else {
                     alert("DATOS INCORRECTOS");
                     resetLoginBtn();
                 }
-            } catch (e) { 
-                alert("ERROR DE RED"); 
-                resetLoginBtn();
-            }
+            } catch (e) { alert("ERROR DE CONEXIÓN"); resetLoginBtn(); }
         }
 
         function resetLoginBtn() {
@@ -153,14 +137,12 @@
 
         async function cargarDatos() {
             try {
-                const resp = await fetch(MOTOR_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: "getDatos" })
-                });
+                const resp = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "getDatos", usuario: session.usuario }) });
                 const data = await resp.json();
                 session.bandas = data.bandas;
+                session.misApuestas = data.misApuestas;
                 renderCategorias();
-            } catch (e) { console.error("Error cargando bandas"); }
+            } catch (e) { console.error("Error de carga"); }
         }
 
         function renderCategorias() {
@@ -169,11 +151,22 @@
             container.innerHTML = "";
             
             cats.forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = "glass-card p-8 rounded-[30px] text-left flex justify-between items-center transition-all active:scale-95";
-                btn.innerHTML = `<div><p class="text-blue-500 text-[8px] font-black tracking-widest uppercase mb-1">CONCURSO</p><span class="font-black text-white uppercase text-sm">${cat}</span></div><span class="text-2xl opacity-30">🏆</span>`;
-                btn.onclick = () => abrirCategoria(cat);
-                container.appendChild(btn);
+                const apuestaPrevia = session.misApuestas.find(a => a.categoria === cat);
+                const card = document.createElement('div');
+                card.className = "glass-card p-6 rounded-[25px] flex justify-between items-center";
+                
+                let content = `<div><p class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">CATEGORÍA</p>
+                               <h4 class="font-black text-white uppercase text-sm">${cat}</h4>`;
+                
+                if(apuestaPrevia) {
+                    content += `<p class="text-[8px] text-blue-400 font-bold mt-2 uppercase">TU PODIO: ${apuestaPrevia.p1}, ${apuestaPrevia.p2}, ${apuestaPrevia.p3}</p></div>
+                                <button onclick="abrirCategoria('${cat}')" class="bg-white/10 text-white px-4 py-2 rounded-xl font-black text-[9px] uppercase border border-white/10">EDITAR PODIUM</button>`;
+                } else {
+                    content += `</div><button onclick="abrirCategoria('${cat}')" class="bg-blue-600 text-white px-5 py-3 rounded-xl font-black text-[9px] uppercase shadow-lg shadow-blue-600/20">APOSTAR</button>`;
+                }
+                
+                card.innerHTML = content;
+                container.appendChild(card);
             });
         }
 
@@ -181,6 +174,13 @@
             selectedCategory = cat;
             currentBet = [];
             document.getElementById('active-category').innerText = cat;
+            
+            // Si ya hay apuesta, cargarla para editar
+            const previa = session.misApuestas.find(a => a.categoria === cat);
+            if(previa) {
+                currentBet = [previa.p1, previa.p2, previa.p3];
+            }
+            
             renderBandas();
             actualizarPodio();
             nav('screen-bet');
@@ -192,10 +192,12 @@
             const filtradas = session.bandas.filter(b => b.nivel === selectedCategory);
 
             filtradas.forEach(b => {
+                const isSelected = currentBet.includes(b.banda);
                 const div = document.createElement('div');
                 div.id = `band-${b.banda}`;
-                div.className = "band-card p-5 border border-white/5 font-bold text-xs uppercase flex items-center justify-between";
-                div.innerHTML = `<span>${b.banda}</span><button onclick="seleccionarBanda('${b.banda}')" class="text-blue-500 font-black text-[10px] bg-blue-500/10 px-4 py-2 rounded-lg">ELEGIR</button>`;
+                div.className = `band-card p-4 flex items-center justify-between ${isSelected ? 'band-selected' : ''}`;
+                div.innerHTML = `<span class="font-bold text-[11px] uppercase">${b.banda}</span>
+                                 <button onclick="seleccionarBanda('${b.banda}')" class="text-blue-500 font-black text-[9px] bg-blue-500/10 px-4 py-2 rounded-lg">ELEGIR</button>`;
                 container.appendChild(div);
             });
         }
@@ -205,6 +207,11 @@
                 currentBet.push(nombre);
                 document.getElementById(`band-${nombre}`).classList.add('band-selected');
                 actualizarPodio();
+            } else if(currentBet.includes(nombre)) {
+                // Si ya está, permitir quitarla para re-organizar
+                currentBet = currentBet.filter(n => n !== nombre);
+                document.getElementById(`band-${nombre}`).classList.remove('band-selected');
+                actualizarPodio();
             }
         }
 
@@ -213,7 +220,7 @@
                 const slot = document.getElementById(`slot-${i}`);
                 if(currentBet[i-1]) {
                     slot.innerText = `${i}° ${currentBet[i-1]}`;
-                    slot.className = "podium-slot slot-filled font-black text-sm";
+                    slot.className = "podium-slot slot-filled";
                 } else {
                     slot.innerText = `${i}° LUGAR VACANTE`;
                     slot.className = "podium-slot slot-empty";
@@ -232,15 +239,14 @@
                 action: "apostar",
                 usuario: session.usuario,
                 categoria: selectedCategory,
-                p1: currentBet[0],
-                p2: currentBet[1],
-                p3: currentBet[2],
+                p1: currentBet[0], p2: currentBet[1], p3: currentBet[2],
                 monto: 1
             };
 
             try {
                 await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify(payload) });
-                alert("🎯 PODIUM REGISTRADO CORRECTAMENTE");
+                await cargarDatos(); // Recarga para actualizar botones del menú
+                alert("🎯 PODIUM REGISTRADO");
                 nav('screen-menu');
             } catch (e) { alert("ERROR AL GUARDAR"); }
             toggleLoader(false);
@@ -252,12 +258,7 @@
         }
 
         function toggleLoader(v) { document.getElementById('loader').classList.toggle('hidden', !v); }
-        
-        function logout() { 
-            localStorage.removeItem('podium_session'); 
-            location.reload(); 
-        }
-
+        function logout() { localStorage.removeItem('podium_v1'); location.reload(); }
     </script>
 </body>
 </html>
