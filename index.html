@@ -7,26 +7,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Montserrat', sans-serif; background-color: #0F172A; color: #F8FAFC; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #0F172A; color: #F8FAFC; overflow-x: hidden; }
         .hidden { display: none; }
         
-        @keyframes pulse-premium {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); transform: scale(1); }
-            70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); transform: scale(0.98); }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); transform: scale(1); }
-        }
-        .btn-loading { animation: pulse-premium 1.5s infinite; pointer-events: none; opacity: 0.8; }
-
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        
+        .btn-loading { animation: pulse-premium 1.5s infinite; pointer-events: none; opacity: 0.8; }
+        @keyframes pulse-premium { 
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6); } 
+            70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); } 
+        }
+
         .podium-slot { height: 60px; border-radius: 18px; display: flex; align-items: center; padding: 0 20px; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; font-weight: 800; font-size: 11px; }
-        .slot-empty { background: rgba(255, 255, 255, 0.03); color: #64748B; letter-spacing: 1px; }
-        .slot-filled { background: #1E3A8A; color: white; border-color: #3B82F6; }
+        .slot-empty { background: rgba(255, 255, 255, 0.03); color: #64748B; }
+        .slot-filled { background: #1E3A8A; color: white; border-color: #3B82F6; box-shadow: 0 8px 20px -5px rgba(59, 130, 246, 0.4); }
 
         .band-card { background: rgba(255,255,255,0.05); transition: all 0.2s; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
         .band-selected { opacity: 0.2; filter: grayscale(1); pointer-events: none; }
-        
-        .badge-done { background: #059669; color: white; font-size: 8px; padding: 2px 8px; border-radius: 6px; font-weight: 900; }
     </style>
 </head>
 <body class="antialiased">
@@ -57,44 +53,40 @@
             </div>
             <button onclick="logout()" class="text-[8px] font-black uppercase text-slate-500 border border-white/10 px-4 py-2 rounded-xl">SALIR</button>
         </div>
-
-        <p class="font-black text-slate-500 text-[9px] uppercase mb-6 tracking-widest">CATEGORÍAS DEL CONCURSO</p>
-        <div id="categories-container" class="space-y-4"></div>
+        <p class="font-black text-slate-500 text-[9px] uppercase mb-6 tracking-widest text-center">CATEGORÍAS ACTIVAS</p>
+        <div id="categories-container" class="space-y-6"></div>
     </div>
 
     <div id="screen-bet" class="hidden p-6 max-w-md mx-auto flex flex-col min-h-screen pb-32">
-        <button onclick="nav('screen-menu')" class="text-[9px] font-black text-slate-500 uppercase mb-8 tracking-widest">← VOLVER AL MENÚ</button>
+        <button onclick="nav('screen-menu')" class="text-[9px] font-black text-slate-500 uppercase mb-8 tracking-widest">← VOLVER</button>
         <h2 id="active-category" class="text-3xl font-black text-white uppercase mb-1">---</h2>
-        <p class="text-blue-400 text-[9px] font-black uppercase tracking-widest mb-10">ARMA TU TRIPLETA GANADORA</p>
-
-        <div class="space-y-3 mb-10">
-            <div id="slot-1" class="podium-slot slot-empty">1° LUGAR</div>
-            <div id="slot-2" class="podium-slot slot-empty">2° LUGAR</div>
-            <div id="slot-3" class="podium-slot slot-empty">3° LUGAR</div>
+        <div class="space-y-3 mb-10 mt-6">
+            <div id="slot-1" class="podium-slot slot-empty">1° PUESTO</div>
+            <div id="slot-2" class="podium-slot slot-empty">2° PUESTO</div>
+            <div id="slot-3" class="podium-slot slot-empty">3° PUESTO</div>
         </div>
-
         <div id="bands-container" class="space-y-2"></div>
-
         <div class="fixed bottom-0 left-0 w-full p-8 bg-slate-950/90 backdrop-blur-xl border-t border-white/5">
-            <button id="btn-confirm" onclick="enviarApuesta()" disabled class="w-full bg-blue-600 text-white p-5 rounded-[22px] font-black uppercase tracking-widest text-[10px] opacity-50 transition-all">CONFIRMAR MI PODIUM</button>
+            <button id="btn-confirm" onclick="enviarApuesta()" disabled class="w-full bg-blue-600 text-white p-5 rounded-[22px] font-black uppercase tracking-widest text-[10px] opacity-50">CONFIRMAR MI PODIUM</button>
         </div>
     </div>
 
+    <div id="modal-trends" class="hidden fixed inset-0 bg-slate-950/95 z-[60] p-8 flex flex-col items-center justify-center">
+        <h3 class="text-xl font-black text-white uppercase mb-2">TENDENCIAS</h3>
+        <p id="trends-cat-name" class="text-blue-400 text-[9px] font-black uppercase tracking-widest mb-10">---</p>
+        <div id="trends-list" class="w-full max-w-sm space-y-6 overflow-y-auto max-h-[60vh] pr-2"></div>
+        <button onclick="closeTrends()" class="mt-12 text-[10px] font-black text-slate-500 uppercase tracking-widest border border-white/10 px-8 py-4 rounded-2xl">CERRAR</button>
+    </div>
+
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbxnR8maRK72haKoQBOWxk5aqFphS1l5WAGYMkM3QdMDAGP3cvCPQejLJi8JnEMryrMp/exec";
-        
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbxCjPEEqvZvmxcCGeG8BU4gG2YcYoXf-29R1Reyoo4KCtqPktFj1lyUvorPsl4YSGRj/exec";
         let session = { usuario: "", nombre: "", bandas: [], misApuestas: [] };
         let currentBet = [];
         let selectedCategory = "";
 
         window.onload = () => {
-            const saved = localStorage.getItem('podium_v1');
-            if (saved) {
-                session = JSON.parse(saved);
-                document.getElementById('user-display').innerText = session.nombre;
-                cargarDatos();
-                nav('screen-menu');
-            }
+            const saved = localStorage.getItem('podium_v2');
+            if (saved) { session = JSON.parse(saved); document.getElementById('user-display').innerText = session.nombre; cargarDatos(); nav('screen-menu'); }
         };
 
         async function login() {
@@ -102,101 +94,67 @@
             const p = document.getElementById('pass-input').value.trim();
             const btn = document.getElementById('btn-login');
             if(!u || !p) return;
-
-            btn.classList.add('btn-loading');
-            btn.innerText = "VERIFICANDO...";
-
+            btn.classList.add('btn-loading'); btn.innerText = "VERIFICANDO...";
             try {
                 const resp = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "login", user: u, pass: p }) });
                 const data = await resp.json();
-                
-                if(data.success) {
-                    if(data.estatus !== "ACTIVO") {
-                        alert("CUENTA INACTIVA. CONTACTE AL ADMINISTRADOR.");
-                        resetLoginBtn();
-                        return;
-                    }
-                    session.usuario = u;
-                    session.nombre = data.nombre;
-                    localStorage.setItem('podium_v1', JSON.stringify(session));
+                if(data.success && data.estatus === "ACTIVO") {
+                    session.usuario = u; session.nombre = data.nombre;
+                    localStorage.setItem('podium_v2', JSON.stringify(session));
                     document.getElementById('user-display').innerText = session.nombre;
-                    await cargarDatos();
-                    nav('screen-menu');
-                } else {
-                    alert("DATOS INCORRECTOS");
-                    resetLoginBtn();
-                }
-            } catch (e) { alert("ERROR DE CONEXIÓN"); resetLoginBtn(); }
+                    await cargarDatos(); nav('screen-menu');
+                } else { alert("ERROR DE ACCESO"); resetLoginBtn(); }
+            } catch (e) { alert("ERROR DE RED"); resetLoginBtn(); }
         }
 
-        function resetLoginBtn() {
-            const btn = document.getElementById('btn-login');
-            btn.classList.remove('btn-loading');
-            btn.innerText = "INGRESAR";
-        }
+        function resetLoginBtn() { const b = document.getElementById('btn-login'); b.classList.remove('btn-loading'); b.innerText = "INGRESAR"; }
 
         async function cargarDatos() {
             try {
                 const resp = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "getDatos", usuario: session.usuario }) });
                 const data = await resp.json();
-                session.bandas = data.bandas;
-                session.misApuestas = data.misApuestas;
+                session.bandas = data.bandas; session.misApuestas = data.misApuestas;
                 renderCategorias();
-            } catch (e) { console.error("Error de carga"); }
+            } catch (e) { console.error(e); }
         }
 
         function renderCategorias() {
             const cats = [...new Set(session.bandas.map(b => b.nivel))];
             const container = document.getElementById('categories-container');
             container.innerHTML = "";
-            
             cats.forEach(cat => {
                 const apuestaPrevia = session.misApuestas.find(a => a.categoria === cat);
                 const card = document.createElement('div');
-                card.className = "glass-card p-6 rounded-[25px] flex justify-between items-center";
-                
-                let content = `<div><p class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">CATEGORÍA</p>
-                               <h4 class="font-black text-white uppercase text-sm">${cat}</h4>`;
-                
+                card.className = "glass-card p-8 rounded-[35px] text-center";
+                let html = `<h4 class="font-black text-white uppercase text-sm mb-4 tracking-tighter">${cat}</h4>`;
                 if(apuestaPrevia) {
-                    content += `<p class="text-[8px] text-blue-400 font-bold mt-2 uppercase">TU PODIO: ${apuestaPrevia.p1}, ${apuestaPrevia.p2}, ${apuestaPrevia.p3}</p></div>
-                                <button onclick="abrirCategoria('${cat}')" class="bg-white/10 text-white px-4 py-2 rounded-xl font-black text-[9px] uppercase border border-white/10">EDITAR PODIUM</button>`;
+                    html += `<p class="text-[8px] text-blue-400 font-bold mb-6 uppercase tracking-widest">TU PODIO: ${apuestaPrevia.p1} • ${apuestaPrevia.p2} • ${apuestaPrevia.p3}</p>
+                             <div class="grid grid-cols-1 gap-3">
+                                <button onclick="abrirCategoria('${cat}', true)" class="bg-white/5 text-white p-4 rounded-xl font-black text-[9px] uppercase border border-white/10">EDITAR PODIUM</button>
+                                <button onclick="verTendencias('${cat}')" class="bg-blue-600/20 text-blue-400 p-4 rounded-xl font-black text-[9px] uppercase border border-blue-500/20">VER TENDENCIAS</button>
+                             </div>`;
                 } else {
-                    content += `</div><button onclick="abrirCategoria('${cat}')" class="bg-blue-600 text-white px-5 py-3 rounded-xl font-black text-[9px] uppercase shadow-lg shadow-blue-600/20">APOSTAR</button>`;
+                    html += `<button onclick="abrirCategoria('${cat}', false)" class="w-full bg-blue-600 text-white p-5 rounded-xl font-black text-[9px] uppercase shadow-lg shadow-blue-600/30">APOSTAR</button>`;
                 }
-                
-                card.innerHTML = content;
-                container.appendChild(card);
+                card.innerHTML = html; container.appendChild(card);
             });
         }
 
-        function abrirCategoria(cat) {
+        function abrirCategoria(cat, esEdicion) {
             selectedCategory = cat;
-            currentBet = [];
+            currentBet = []; // LIMPIEZA TOTAL SIEMPRE AL ENTRAR A EDITAR O APOSTAR
             document.getElementById('active-category').innerText = cat;
-            
-            // Si ya hay apuesta, cargarla para editar
-            const previa = session.misApuestas.find(a => a.categoria === cat);
-            if(previa) {
-                currentBet = [previa.p1, previa.p2, previa.p3];
-            }
-            
-            renderBandas();
-            actualizarPodio();
-            nav('screen-bet');
+            renderBandas(); actualizarPodio(); nav('screen-bet');
         }
 
         function renderBandas() {
             const container = document.getElementById('bands-container');
             container.innerHTML = "";
-            const filtradas = session.bandas.filter(b => b.nivel === selectedCategory);
-
-            filtradas.forEach(b => {
-                const isSelected = currentBet.includes(b.banda);
+            session.bandas.filter(b => b.nivel === selectedCategory).forEach(b => {
                 const div = document.createElement('div');
                 div.id = `band-${b.banda}`;
-                div.className = `band-card p-4 flex items-center justify-between ${isSelected ? 'band-selected' : ''}`;
-                div.innerHTML = `<span class="font-bold text-[11px] uppercase">${b.banda}</span>
+                div.className = "band-card p-4 flex items-center justify-between";
+                div.innerHTML = `<span class="font-bold text-[10px] uppercase">${b.banda}</span>
                                  <button onclick="seleccionarBanda('${b.banda}')" class="text-blue-500 font-black text-[9px] bg-blue-500/10 px-4 py-2 rounded-lg">ELEGIR</button>`;
                 container.appendChild(div);
             });
@@ -204,61 +162,55 @@
 
         function seleccionarBanda(nombre) {
             if(currentBet.length < 3 && !currentBet.includes(nombre)) {
-                currentBet.push(nombre);
-                document.getElementById(`band-${nombre}`).classList.add('band-selected');
-                actualizarPodio();
-            } else if(currentBet.includes(nombre)) {
-                // Si ya está, permitir quitarla para re-organizar
-                currentBet = currentBet.filter(n => n !== nombre);
-                document.getElementById(`band-${nombre}`).classList.remove('band-selected');
+                currentBet.push(nombre); document.getElementById(`band-${nombre}`).classList.add('band-selected');
                 actualizarPodio();
             }
         }
 
         function actualizarPodio() {
             for(let i = 1; i <= 3; i++) {
-                const slot = document.getElementById(`slot-${i}`);
-                if(currentBet[i-1]) {
-                    slot.innerText = `${i}° ${currentBet[i-1]}`;
-                    slot.className = "podium-slot slot-filled";
-                } else {
-                    slot.innerText = `${i}° LUGAR VACANTE`;
-                    slot.className = "podium-slot slot-empty";
-                }
+                const s = document.getElementById(`slot-${i}`);
+                if(currentBet[i-1]) { s.innerText = `${i}° ${currentBet[i-1]}`; s.className = "podium-slot slot-filled"; }
+                else { s.innerText = `${i}° PUESTO`; s.className = "podium-slot slot-empty"; }
             }
-            const btn = document.getElementById('btn-confirm');
-            btn.disabled = currentBet.length < 3;
-            btn.classList.toggle('opacity-50', currentBet.length < 3);
+            const b = document.getElementById('btn-confirm');
+            b.disabled = currentBet.length < 3; b.classList.toggle('opacity-50', currentBet.length < 3);
         }
 
         async function enviarApuesta() {
             if(!confirm("¿ESTÁS SEGURO QUE DESEAS CONFIRMAR TU PODIUM?")) return;
-            
             toggleLoader(true);
-            const payload = {
-                action: "apostar",
-                usuario: session.usuario,
-                categoria: selectedCategory,
-                p1: currentBet[0], p2: currentBet[1], p3: currentBet[2],
-                monto: 1
-            };
-
             try {
-                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify(payload) });
-                await cargarDatos(); // Recarga para actualizar botones del menú
-                alert("🎯 PODIUM REGISTRADO");
-                nav('screen-menu');
+                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "apostar", usuario: session.usuario, categoria: selectedCategory, p1: currentBet[0], p2: currentBet[1], p3: currentBet[2], monto: 1 }) });
+                await cargarDatos(); alert("🎯 PODIUM REGISTRADO"); nav('screen-menu');
             } catch (e) { alert("ERROR AL GUARDAR"); }
             toggleLoader(false);
         }
 
-        function nav(id) {
-            document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
+        async function verTendencias(cat) {
+            toggleLoader(true);
+            try {
+                const resp = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "getTendencias", categoria: cat }) });
+                const data = await resp.json();
+                const list = document.getElementById('trends-list');
+                const totalVotos = data.tendencias.reduce((acc, curr) => acc + curr.votos, 0);
+                list.innerHTML = data.tendencias.map(t => {
+                    const pct = ((t.votos / totalVotos) * 100).toFixed(0);
+                    return `<div class="w-full">
+                                <div class="flex justify-between mb-2"><span class="text-[10px] font-black uppercase">${t.nombre}</span><span class="text-blue-400 font-black text-[10px]">${pct}%</span></div>
+                                <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden"><div class="bg-blue-600 h-full rounded-full" style="width: ${pct}%"></div></div>
+                            </div>`;
+                }).join('');
+                document.getElementById('trends-cat-name').innerText = cat;
+                document.getElementById('modal-trends').classList.remove('hidden');
+            } catch (e) { alert("ERROR AL CARGAR TENDENCIAS"); }
+            toggleLoader(false);
         }
 
+        function closeTrends() { document.getElementById('modal-trends').classList.add('hidden'); }
+        function nav(id) { document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.id !== 'modal-trends' && d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
         function toggleLoader(v) { document.getElementById('loader').classList.toggle('hidden', !v); }
-        function logout() { localStorage.removeItem('podium_v1'); location.reload(); }
+        function logout() { localStorage.removeItem('podium_v2'); location.reload(); }
     </script>
 </body>
 </html>
