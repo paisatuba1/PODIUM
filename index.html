@@ -25,9 +25,7 @@
         .band-selected { opacity: 0.1; filter: grayscale(1); pointer-events: none; }
         
         .btn-salir { background: #7F1D1D; color: #FEE2E2; border: 1px solid #B91C1C; padding: 12px 24px; border-radius: 18px; font-weight: 900; font-size: 13px; }
-        .btn-delete { color: #F87171; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-top: 15px; display: inline-block; opacity: 0.8; }
         
-        /* Panel Consolidado Dinámico */
         .stats-panel-consolidado { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 35px; padding: 20px; margin-bottom: 30px; }
         .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .stat-row:last-child { border-bottom: none; }
@@ -93,7 +91,7 @@
     </div>
 
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycby_wcq8sQyShMYMN9hVuRByMEpsqFuxhj7N5k2AzPYcBvZDBY-kXfNGcxBlHFAcifpE/exec";
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbwsjiC3ARlT1lV_Sgj5YnNxxxOiEmkM_EiJ-Kfslb9zSh-9JWn0mUty0IN7fSSrdsK9/exec";
         let session = { usuario: "", nombre: "", bandas: [], misApuestas: [], rawApuestas: [] };
         let currentBet = [];
         let selectedCategory = "";
@@ -116,8 +114,8 @@
                     localStorage.setItem('podium_v2', JSON.stringify(session));
                     document.getElementById('user-display').innerText = session.nombre;
                     await cargarDatos(); nav('screen-menu');
-                } else { alert("USUARIO O CLAVE INCORRECTA"); }
-            } catch (e) { alert("ERROR DE CONEXIÓN"); }
+                } else { alert("ERROR"); }
+            } catch (e) { alert("ERROR RED"); }
             toggleLoader(false);
         }
 
@@ -128,7 +126,6 @@
                 session.bandas = d.bandas; 
                 session.misApuestas = d.misApuestas;
                 session.rawApuestas = d.rawApuestas || [];
-
                 renderConsolidado();
                 renderCategorias();
             } catch (e) { console.error(e); }
@@ -136,20 +133,16 @@
 
         function renderConsolidado() {
             const container = document.getElementById('consolidado-container');
-            container.innerHTML = `<p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 text-center">CONSOLIDADO POR NIVELES</p>`;
-            
+            container.innerHTML = `<p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 text-center">POZO ESTIMADO POR NIVELES</p>`;
             const cats = [...new Set(session.bandas.map(b => b.nivel))];
-            
             cats.forEach(cat => {
-                const localBets = session.rawApuestas ? session.rawApuestas.filter(a => a[2] === cat) : [];
+                const localBets = session.rawApuestas.filter(a => a[2] === cat);
                 const localPozo = localBets.reduce((acc, a) => acc + (parseFloat(a[6]) || 0), 0);
-                const localUsers = localBets.length;
-
                 const row = document.createElement('div');
                 row.className = "stat-row";
                 row.innerHTML = `
                     <div class="w-1/3"><p class="text-[11px] font-black text-white uppercase truncate">${cat}</p></div>
-                    <div class="w-1/3 text-center"><p class="text-[11px] font-black text-slate-400 uppercase">${localUsers} PERS.</p></div>
+                    <div class="w-1/3 text-center"><p class="text-[11px] font-black text-slate-400 uppercase">${localBets.length} PERS.</p></div>
                     <div class="w-1/3 text-right"><p class="text-[12px] font-black text-white">$${localPozo.toLocaleString()}</p></div>
                 `;
                 container.appendChild(row);
@@ -160,14 +153,11 @@
             const container = document.getElementById('categories-container');
             container.innerHTML = "";
             const cats = [...new Set(session.bandas.map(b => b.nivel))];
-            
             cats.forEach((cat, index) => {
                 const miApuesta = session.misApuestas.find(a => a.categoria === cat);
                 const card = document.createElement('div');
                 card.className = `${index % 2 === 0 ? 'card-gray-1' : 'card-gray-2'} rounded-[40px] text-center`;
-                
                 let html = `<h4 class="font-black text-white uppercase text-2xl mb-6 tracking-tighter">${cat}</h4>`;
-                
                 if(miApuesta) {
                     const edits = parseInt(miApuesta.ediciones || 0);
                     const statusColor = miApuesta.estatus === 'activo' ? 'text-green-500' : 'text-amber-500';
@@ -184,11 +174,7 @@
                     } else {
                         html += `<p class="text-[9px] font-black text-red-500 uppercase">PODIUM BLINDADO</p>`;
                     }
-                    html += `
-                        <button onclick="verTendencias('${cat}')" class="w-full btn-trends p-5 rounded-2xl font-black uppercase">VER TENDENCIAS</button>
-                        <button onclick="cancelarApuesta('${cat}')" class="btn-delete">ELIMINAR APUESTA</button>
-                        </div>
-                    `;
+                    html += `<button onclick="verTendencias('${cat}')" class="w-full btn-trends p-5 rounded-2xl font-black uppercase">VER TENDENCIAS</button></div>`;
                 } else {
                     html += `<button onclick="abrirCategoria('${cat}')" class="w-full bg-white text-slate-950 p-6 rounded-2xl font-black text-sm uppercase">ACTIVAR APUESTA</button>`;
                 }
@@ -247,16 +233,6 @@
             try {
                 await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "apostar", usuario: session.usuario, categoria: selectedCategory, p1: currentBet[0], p2: currentBet[1], p3: currentBet[2] }) });
                 await cargarDatos(); nav('screen-menu');
-            } catch (e) { alert("ERROR AL GUARDAR"); }
-            toggleLoader(false);
-        }
-
-        async function cancelarApuesta(cat) {
-            if(!confirm("¿ELIMINAR APUESTA?")) return;
-            toggleLoader(true);
-            try {
-                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "cancelar", usuario: session.usuario, categoria: cat }) });
-                await cargarDatos();
             } catch (e) { alert("ERROR"); }
             toggleLoader(false);
         }
