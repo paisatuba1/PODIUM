@@ -26,8 +26,8 @@
         
         .btn-salir { background: #7F1D1D; color: #FEE2E2; border: 1px solid #B91C1C; padding: 12px 24px; border-radius: 18px; font-weight: 900; font-size: 13px; }
         
-        .stats-panel-consolidado { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 35px; padding: 20px; margin-bottom: 30px; }
-        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .stats-panel-consolidado { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 35px; padding: 25px; margin-bottom: 30px; }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .stat-row:last-child { border-bottom: none; }
     </style>
 </head>
@@ -114,8 +114,8 @@
                     localStorage.setItem('podium_v2', JSON.stringify(session));
                     document.getElementById('user-display').innerText = session.nombre;
                     await cargarDatos(); nav('screen-menu');
-                } else { alert("ERROR"); }
-            } catch (e) { alert("ERROR RED"); }
+                } else { alert("DATOS INCORRECTOS"); }
+            } catch (e) { alert("ERROR DE CONEXIÓN"); }
             toggleLoader(false);
         }
 
@@ -133,7 +133,7 @@
 
         function renderConsolidado() {
             const container = document.getElementById('consolidado-container');
-            container.innerHTML = `<p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 text-center">POZO ESTIMADO POR NIVELES</p>`;
+            container.innerHTML = `<p class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-5 text-center">PODIO ESTIMADO POR NIVELES</p>`;
             const cats = [...new Set(session.bandas.map(b => b.nivel))];
             cats.forEach(cat => {
                 const localBets = session.rawApuestas.filter(a => a[2] === cat);
@@ -141,9 +141,9 @@
                 const row = document.createElement('div');
                 row.className = "stat-row";
                 row.innerHTML = `
-                    <div class="w-1/3"><p class="text-[11px] font-black text-white uppercase truncate">${cat}</p></div>
-                    <div class="w-1/3 text-center"><p class="text-[11px] font-black text-slate-400 uppercase">${localBets.length} PERS.</p></div>
-                    <div class="w-1/3 text-right"><p class="text-[12px] font-black text-white">$${localPozo.toLocaleString()}</p></div>
+                    <div class="w-1/3"><p class="text-[13px] font-black text-white uppercase truncate">${cat}</p></div>
+                    <div class="w-1/3 text-center"><p class="text-[11px] font-black text-slate-500 uppercase">${localBets.length} PERS.</p></div>
+                    <div class="w-1/3 text-right"><p class="text-[15px] font-black text-white">$${localPozo.toLocaleString()}</p></div>
                 `;
                 container.appendChild(row);
             });
@@ -159,20 +159,19 @@
                 card.className = `${index % 2 === 0 ? 'card-gray-1' : 'card-gray-2'} rounded-[40px] text-center`;
                 let html = `<h4 class="font-black text-white uppercase text-2xl mb-6 tracking-tighter">${cat}</h4>`;
                 if(miApuesta) {
-                    const edits = parseInt(miApuesta.ediciones || 0);
                     const statusColor = miApuesta.estatus === 'activo' ? 'text-green-500' : 'text-amber-500';
                     html += `
-                        <div class="bg-black/40 p-5 rounded-3xl mb-6 border border-white/5">
-                            <p class="text-[9px] font-black uppercase tracking-widest mb-2 ${statusColor}">ESTADO: ${miApuesta.estatus}</p>
-                            <p class="text-[10px] text-slate-500 font-black mb-3 uppercase tracking-widest text-center">TU PODIO (FONDO: $${miApuesta.monto.toLocaleString()}):</p>
-                            <p class="text-sm text-slate-300 font-bold uppercase leading-relaxed text-center">${miApuesta.p1}<br>${miApuesta.p2}<br>${miApuesta.p3}</p>
+                        <div class="bg-black/40 p-6 rounded-3xl mb-6 border border-white/5">
+                            <p class="text-[10px] font-black uppercase tracking-[0.3em] mb-3 ${statusColor}">ESTADO: ${miApuesta.estatus}</p>
+                            <p class="text-[13px] text-white font-black mb-4 uppercase tracking-widest text-center">TU PODIO (FONDO: $${miApuesta.monto.toLocaleString()}):</p>
+                            <p class="text-[15px] text-slate-300 font-bold uppercase leading-relaxed text-center">${miApuesta.p1}<br>${miApuesta.p2}<br>${miApuesta.p3}</p>
                         </div>
                         <div class="space-y-4">
                     `;
-                    if(edits < 3) {
-                        html += `<button onclick="confirmarEdicion('${cat}', ${edits})" class="w-full bg-white/5 text-white p-5 rounded-2xl font-black text-sm uppercase border border-white/10">EDITAR APUESTA</button>`;
+                    if(parseInt(miApuesta.ediciones) < 3) {
+                        html += `<button onclick="confirmarEdicion('${cat}', ${miApuesta.ediciones})" class="w-full bg-white/5 text-white p-5 rounded-2xl font-black text-sm uppercase border border-white/10">EDITAR APUESTA</button>`;
                     } else {
-                        html += `<p class="text-[9px] font-black text-red-500 uppercase">PODIUM BLINDADO</p>`;
+                        html += `<p class="text-[10px] font-black text-red-500 uppercase tracking-widest">PODIUM BLINDADO</p>`;
                     }
                     html += `<button onclick="verTendencias('${cat}')" class="w-full btn-trends p-5 rounded-2xl font-black uppercase">VER TENDENCIAS</button></div>`;
                 } else {
@@ -184,9 +183,9 @@
 
         function confirmarEdicion(cat, edits) {
             let msg = "";
-            if(edits === 0) msg = "¿Confirmar actualización de estrategia?\nEsta gestión tiene un costo operativo de $1.000. Tu fondo disponible para el premio final se ajustará a $18.000. Te quedarán 2 cambios disponibles.";
-            if(edits === 1) msg = "¿Confirmar nueva gestión de datos?\nPara procesar este segundo cambio, se aplicará un costo de mantenimiento de $1.000. Tu fondo en juego será de $17.000. Te quedará 1 último cambio disponible.";
-            if(edits === 2) msg = "¿Confirmar última actualización disponible?\nEste ajuste final de datos tiene un costo operativo de $1.000. Tu fondo definitivo para el pozo será de $16.000. Tras esta acción, tu Podium quedará blindado.";
+            if(edits == 0) msg = "¿Confirmar actualización de estrategia?\nEsta gestión tiene un costo operativo de $1.000. Tu fondo disponible para el premio final se ajustará a $18.000. Te quedarán 2 cambios disponibles.";
+            if(edits == 1) msg = "¿Confirmar nueva gestión de datos?\nPara procesar este segundo cambio, se aplicará un costo de mantenimiento de $1.000. Tu fondo en juego será de $17.000. Te quedará 1 último cambio disponible.";
+            if(edits == 2) msg = "¿Confirmar última actualización disponible?\nEste ajuste final de datos tiene un costo operativo de $1.000. Tu fondo definitivo para el pozo será de $16.000. Tras esta acción, tu Podium quedará blindado.";
             if(confirm(msg)) abrirCategoria(cat);
         }
 
