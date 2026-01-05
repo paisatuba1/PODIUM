@@ -10,46 +10,46 @@
         body { font-family: 'Montserrat', sans-serif; background-color: #0A0F1A; color: #F8FAFC; overflow-x: hidden; }
         .hidden { display: none; }
         
-        /* Grises sutiles para categorías */
-        .card-gray-1 { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .card-gray-2 { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.03); }
+        /* Cuadros ligeramente más pequeños */
+        .card-gray-1 { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); padding: 30px !important; }
+        .card-gray-2 { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.03); padding: 30px !important; }
         
-        .btn-xl { padding: 24px; border-radius: 24px; font-size: 16px; font-weight: 900; letter-spacing: 1px; }
+        .btn-xl { padding: 24px; border-radius: 24px; font-size: 18px; font-weight: 900; letter-spacing: 1px; }
         
-        /* Ventana Tendencias Difuminada */
         .modal-blur { background: rgba(10, 15, 26, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); }
-        .btn-trends { background: rgba(255, 255, 255, 0.05); color: #94A3B8; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-trends { background: rgba(255, 255, 255, 0.05); color: #94A3B8; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 14px !important; }
         .bar-gray { background: #475569; }
 
-        /* Podio y Slots */
-        .podium-slot { height: 85px; border-radius: 22px; display: flex; align-items: center; padding: 0 25px; border: 1px solid rgba(255,255,255,0.08); text-transform: uppercase; font-weight: 900; font-size: 15px; margin-bottom: 12px; }
+        /* Slots de podio más compactos pero con letra más grande */
+        .podium-slot { height: 75px; border-radius: 20px; display: flex; align-items: center; padding: 0 25px; border: 1px solid rgba(255,255,255,0.08); text-transform: uppercase; font-weight: 900; font-size: 17px; margin-bottom: 10px; }
         .slot-empty { background: rgba(255, 255, 255, 0.02); color: #475569; border-style: dashed; }
         .slot-filled { background: #1E293B; color: white; border-color: #64748B; }
 
-        .band-card { background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; }
+        .band-card { background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; padding: 18px !important; }
         .band-selected { opacity: 0.1; filter: grayscale(1); pointer-events: none; }
         
-        /* Botón Salir */
-        .btn-salir { background: #7F1D1D; color: #FEE2E2; border: 1px solid #B91C1C; padding: 12px 24px; border-radius: 18px; font-weight: 900; font-size: 12px; transition: all 0.2s; }
-        .btn-salir:active { background: #991B1B; transform: scale(0.95); }
-
-        .btn-delete { color: #F87171; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-top: 15px; display: inline-block; opacity: 0.7; }
+        .btn-salir { background: #7F1D1D; color: #FEE2E2; border: 1px solid #B91C1C; padding: 12px 24px; border-radius: 18px; font-weight: 900; font-size: 13px; transition: all 0.2s; }
+        
+        .btn-delete { color: #F87171; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-top: 15px; display: inline-block; opacity: 0.8; }
+        
+        /* Ajuste de inputs */
+        input { font-size: 20px !important; }
     </style>
 </head>
 <body class="antialiased">
 
     <div id="loader" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center text-center p-10">
         <div class="w-12 h-12 border-2 border-slate-500 border-t-white rounded-full animate-spin mb-6"></div>
-        <p class="text-[10px] font-black tracking-[0.4em] text-slate-500 uppercase">SINCRONIZANDO...</p>
+        <p class="text-[11px] font-black tracking-[0.4em] text-slate-500 uppercase">SINCRONIZANDO...</p>
     </div>
 
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-6">
         <div class="bg-slate-900/50 p-10 rounded-[45px] w-full max-w-sm text-center border border-white/5 shadow-2xl">
-            <h1 class="text-5xl font-black mb-2 tracking-tighter uppercase">PODIUM</h1>
-            <p class="text-slate-500 text-[10px] mb-14 uppercase tracking-[0.5em] font-bold">PREMIUM EXPERIENCE</p>
+            <h1 class="text-6xl font-black mb-2 tracking-tighter uppercase">PODIUM</h1>
+            <p class="text-slate-500 text-[11px] mb-14 uppercase tracking-[0.5em] font-bold">PREMIUM EXPERIENCE</p>
             <div class="space-y-5">
-                <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-6 bg-white/5 border border-white/10 rounded-3xl outline-none text-center font-black text-lg uppercase text-white">
-                <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-6 bg-white/5 border border-white/10 rounded-3xl outline-none text-center text-2xl tracking-widest font-black text-white">
+                <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-6 bg-white/5 border border-white/10 rounded-3xl outline-none text-center font-black uppercase text-white">
+                <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-6 bg-white/5 border border-white/10 rounded-3xl outline-none text-center tracking-widest font-black text-white">
                 <button id="btn-login" onclick="login()" class="w-full bg-white text-slate-950 btn-xl uppercase mt-6">INGRESAR</button>
             </div>
         </div>
@@ -58,37 +58,37 @@
     <div id="screen-menu" class="hidden p-8 max-w-md mx-auto flex flex-col min-h-screen">
         <div class="flex justify-between items-center mb-14 mt-8">
             <div>
-                <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] mb-1">BIENVENIDO AL</p>
+                <p class="text-[11px] font-black text-slate-600 uppercase tracking-[0.3em] mb-1">BIENVENIDO AL</p>
                 <h2 class="text-4xl font-black text-white uppercase tracking-tighter">PODIUM</h2>
-                <p id="user-display" class="text-slate-400 font-bold text-sm uppercase">---</p>
+                <p id="user-display" class="text-slate-400 font-bold text-base uppercase">---</p>
             </div>
             <button onclick="logout()" class="btn-salir uppercase">SALIR</button>
         </div>
-        <p class="font-black text-slate-700 text-[11px] uppercase mb-8 tracking-[0.3em] text-center">CATEGORÍAS ACTIVAS</p>
+        <p class="font-black text-slate-700 text-[12px] uppercase mb-8 tracking-[0.3em] text-center">CATEGORÍAS ACTIVAS</p>
         <div id="categories-container" class="space-y-6"></div>
     </div>
 
     <div id="screen-bet" class="hidden p-8 max-w-md mx-auto flex flex-col min-h-screen pb-44">
-        <button onclick="nav('screen-menu')" class="text-xs font-black text-slate-600 uppercase mb-10 tracking-widest flex items-center">
+        <button onclick="nav('screen-menu')" class="text-sm font-black text-slate-600 uppercase mb-10 tracking-widest flex items-center">
             <span class="text-2xl mr-3">←</span> VOLVER
         </button>
         <h2 id="active-category" class="text-4xl font-black text-white uppercase mb-1">---</h2>
-        <div class="mb-14 mt-10">
+        <div class="mb-10 mt-10">
             <div id="slot-1" class="podium-slot slot-empty">1° LUGAR</div>
             <div id="slot-2" class="podium-slot slot-empty">2° LUGAR</div>
             <div id="slot-3" class="podium-slot slot-empty">3° LUGAR</div>
         </div>
         <div id="bands-container" class="space-y-3"></div>
         <div class="fixed bottom-0 left-0 w-full p-8 bg-slate-950/90 backdrop-blur-2xl border-t border-white/5 z-50">
-            <button id="btn-confirm" onclick="enviarApuesta()" disabled class="w-full bg-white text-slate-950 p-7 rounded-[30px] font-black uppercase tracking-widest text-sm opacity-50">CONFIRMAR PODIUM</button>
+            <button id="btn-confirm" onclick="enviarApuesta()" disabled class="w-full bg-white text-slate-950 p-7 rounded-[30px] font-black uppercase tracking-widest text-base opacity-50">CONFIRMAR PODIUM</button>
         </div>
     </div>
 
     <div id="modal-trends" class="hidden fixed inset-0 modal-blur z-[60] p-10 flex flex-col items-center justify-center">
-        <h3 class="text-3xl font-black text-white uppercase mb-2 tracking-tighter">TENDENCIAS</h3>
-        <p id="trends-cat-name" class="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mb-14 text-center">TOP 2 SELECCIONADOS</p>
-        <div id="trends-list" class="w-full max-w-sm space-y-8"></div>
-        <button onclick="closeTrends()" class="mt-16 text-xs font-black text-slate-400 uppercase tracking-widest border border-white/10 px-12 py-6 rounded-3xl">CERRAR VENTANA</button>
+        <h3 class="text-4xl font-black text-white uppercase mb-2 tracking-tighter">TENDENCIAS</h3>
+        <p id="trends-cat-name" class="text-slate-500 text-[11px] font-black uppercase tracking-[0.4em] mb-14 text-center">TOP 2 SELECCIONADOS</p>
+        <div id="trends-list" class="w-full max-w-sm space-y-10"></div>
+        <button onclick="closeTrends()" class="mt-16 text-sm font-black text-slate-400 uppercase tracking-widest border border-white/10 px-12 py-6 rounded-3xl">CERRAR</button>
     </div>
 
     <script>
@@ -116,7 +116,7 @@
                     localStorage.setItem('podium_v2', JSON.stringify(session));
                     document.getElementById('user-display').innerText = session.nombre;
                     await cargarDatos(); nav('screen-menu');
-                } else { alert("ACCESO DENEGADO"); b.innerText = "INGRESAR"; }
+                } else { alert("ERROR"); b.innerText = "INGRESAR"; }
             } catch (e) { alert("ERROR RED"); b.innerText = "INGRESAR"; }
         }
 
@@ -136,20 +136,20 @@
             cats.forEach((cat, index) => {
                 const apuestaPrevia = session.misApuestas.find(a => a.categoria === cat);
                 const card = document.createElement('div');
-                card.className = `${index % 2 === 0 ? 'card-gray-1' : 'card-gray-2'} p-10 rounded-[45px] text-center`;
-                let html = `<h4 class="font-black text-white uppercase text-xl mb-6 tracking-tighter">${cat}</h4>`;
+                card.className = `${index % 2 === 0 ? 'card-gray-1' : 'card-gray-2'} rounded-[40px] text-center`;
+                let html = `<h4 class="font-black text-white uppercase text-2xl mb-6 tracking-tighter">${cat}</h4>`;
                 if(apuestaPrevia) {
-                    html += `<div class="bg-black/40 p-6 rounded-3xl mb-8 border border-white/5">
-                                <p class="text-[9px] text-slate-500 font-black mb-3 uppercase tracking-widest text-center">TU PODIO:</p>
-                                <p class="text-xs text-slate-300 font-bold uppercase leading-relaxed text-center">${apuestaPrevia.p1}<br>${apuestaPrevia.p2}<br>${apuestaPrevia.p3}</p>
+                    html += `<div class="bg-black/40 p-5 rounded-3xl mb-6 border border-white/5">
+                                <p class="text-[10px] text-slate-500 font-black mb-3 uppercase tracking-widest text-center">TU PODIO:</p>
+                                <p class="text-sm text-slate-300 font-bold uppercase leading-relaxed text-center">${apuestaPrevia.p1}<br>${apuestaPrevia.p2}<br>${apuestaPrevia.p3}</p>
                              </div>
                              <div class="space-y-4">
-                                <button onclick="abrirCategoria('${cat}')" class="w-full bg-white/5 text-white p-6 rounded-2xl font-black text-xs uppercase border border-white/10">EDITAR PODIUM</button>
-                                <button onclick="verTendencias('${cat}')" class="w-full btn-trends p-6 rounded-2xl font-black text-xs uppercase">VER TENDENCIAS</button>
-                                <button onclick="cancelarApuesta('${cat}')" class="btn-delete">ELIMINAR MI APUESTA</button>
+                                <button onclick="abrirCategoria('${cat}')" class="w-full bg-white/5 text-white p-5 rounded-2xl font-black text-sm uppercase border border-white/10">EDITAR PODIUM</button>
+                                <button onclick="verTendencias('${cat}')" class="w-full btn-trends p-5 rounded-2xl font-black uppercase">VER TENDENCIAS</button>
+                                <button onclick="cancelarApuesta('${cat}')" class="btn-delete">ELIMINAR APUESTA</button>
                              </div>`;
                 } else {
-                    html += `<button onclick="abrirCategoria('${cat}')" class="w-full bg-white text-slate-950 p-7 rounded-2xl font-black text-xs uppercase">APOSTAR</button>`;
+                    html += `<button onclick="abrirCategoria('${cat}')" class="w-full bg-white text-slate-950 p-6 rounded-2xl font-black text-sm uppercase">APOSTAR</button>`;
                 }
                 card.innerHTML = html; container.appendChild(card);
             });
@@ -168,9 +168,9 @@
             session.bandas.filter(b => b.nivel === selectedCategory).forEach(b => {
                 const div = document.createElement('div');
                 div.id = `band-${b.banda}`;
-                div.className = "band-card p-6 flex items-center justify-between";
-                div.innerHTML = `<span class="font-black text-sm uppercase text-slate-200">${b.banda}</span>
-                                 <button onclick="seleccionarBanda('${b.banda}')" class="text-white font-black text-xs bg-white/5 px-6 py-4 rounded-2xl border border-white/10">ELEGIR</button>`;
+                div.className = "band-card flex items-center justify-between";
+                div.innerHTML = `<span class="font-black text-base uppercase text-slate-200">${b.banda}</span>
+                                 <button onclick="seleccionarBanda('${b.banda}')" class="text-white font-black text-sm bg-white/5 px-6 py-4 rounded-xl border border-white/10">ELEGIR</button>`;
                 container.appendChild(div);
             });
         }
@@ -203,13 +203,13 @@
         }
 
         async function cancelarApuesta(cat) {
-            if(!confirm("¿CONFIRMAS LA ELIMINACIÓN TOTAL DE ESTA APUESTA?")) return;
+            if(!confirm("¿ELIMINAR APUESTA?")) return;
             toggleLoader(true);
             try {
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "cancelar", usuario: session.usuario, categoria: cat }) });
                 const d = await r.json();
                 if(d.success) { await cargarDatos(); }
-            } catch (e) { alert("ERROR AL ELIMINAR"); }
+            } catch (e) { alert("ERROR"); }
             toggleLoader(false);
         }
 
@@ -223,12 +223,12 @@
                 list.innerHTML = d.tendencias.length > 0 ? d.tendencias.map(t => {
                     const pct = total > 0 ? ((t.votos / total) * 100).toFixed(0) : 0;
                     return `<div>
-                                <div class="flex justify-between mb-3"><span class="text-xs font-black uppercase text-slate-300">${t.nombre}</span><span class="text-slate-500 font-black text-xs">${pct}%</span></div>
-                                <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden"><div class="bar-gray h-full rounded-full" style="width: ${pct}%"></div></div>
+                                <div class="flex justify-between mb-4"><span class="text-base font-black uppercase text-slate-300">${t.nombre}</span><span class="text-slate-500 font-black text-sm">${pct}%</span></div>
+                                <div class="w-full bg-white/5 h-3 rounded-full overflow-hidden"><div class="bar-gray h-full rounded-full" style="width: ${pct}%"></div></div>
                             </div>`;
-                }).join('') : `<p class="text-slate-600 text-[10px] font-bold uppercase tracking-widest text-center">SIN DATOS SUFICIENTES</p>`;
+                }).join('') : `<p class="text-slate-600 text-[12px] font-bold uppercase text-center">SIN DATOS</p>`;
                 document.getElementById('modal-trends').classList.remove('hidden');
-            } catch (e) { alert("ERROR TENDENCIAS"); }
+            } catch (e) { alert("ERROR"); }
             toggleLoader(false);
         }
 
