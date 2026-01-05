@@ -10,17 +10,13 @@
         body { font-family: 'Montserrat', sans-serif; background-color: #0A0F1A; color: #F8FAFC; overflow-x: hidden; }
         .hidden { display: none; }
         
-        /* Cuadros ligeramente más pequeños */
         .card-gray-1 { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); padding: 30px !important; }
         .card-gray-2 { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.03); padding: 30px !important; }
         
         .btn-xl { padding: 24px; border-radius: 24px; font-size: 18px; font-weight: 900; letter-spacing: 1px; }
-        
         .modal-blur { background: rgba(10, 15, 26, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); }
         .btn-trends { background: rgba(255, 255, 255, 0.05); color: #94A3B8; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 14px !important; }
-        .bar-gray { background: #475569; }
-
-        /* Slots de podio más compactos pero con letra más grande */
+        
         .podium-slot { height: 75px; border-radius: 20px; display: flex; align-items: center; padding: 0 25px; border: 1px solid rgba(255,255,255,0.08); text-transform: uppercase; font-weight: 900; font-size: 17px; margin-bottom: 10px; }
         .slot-empty { background: rgba(255, 255, 255, 0.02); color: #475569; border-style: dashed; }
         .slot-filled { background: #1E293B; color: white; border-color: #64748B; }
@@ -29,11 +25,10 @@
         .band-selected { opacity: 0.1; filter: grayscale(1); pointer-events: none; }
         
         .btn-salir { background: #7F1D1D; color: #FEE2E2; border: 1px solid #B91C1C; padding: 12px 24px; border-radius: 18px; font-weight: 900; font-size: 13px; transition: all 0.2s; }
-        
         .btn-delete { color: #F87171; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-top: 15px; display: inline-block; opacity: 0.8; }
         
-        /* Ajuste de inputs */
-        input { font-size: 20px !important; }
+        /* Panel de Estadísticas */
+        .stats-panel { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 35px; padding: 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
     </style>
 </head>
 <body class="antialiased">
@@ -48,15 +43,15 @@
             <h1 class="text-6xl font-black mb-2 tracking-tighter uppercase">PODIUM</h1>
             <p class="text-slate-500 text-[11px] mb-14 uppercase tracking-[0.5em] font-bold">PREMIUM EXPERIENCE</p>
             <div class="space-y-5">
-                <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-6 bg-white/5 border border-white/10 rounded-3xl outline-none text-center font-black uppercase text-white">
-                <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-6 bg-white/5 border border-white/10 rounded-3xl outline-none text-center tracking-widest font-black text-white">
+                <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-6 bg-white/5 border border-white/10 rounded-3xl outline-none text-center font-black uppercase text-white" style="font-size: 20px;">
+                <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-6 bg-white/5 border border-white/10 rounded-3xl outline-none text-center tracking-widest font-black text-white" style="font-size: 20px;">
                 <button id="btn-login" onclick="login()" class="w-full bg-white text-slate-950 btn-xl uppercase mt-6">INGRESAR</button>
             </div>
         </div>
     </div>
 
     <div id="screen-menu" class="hidden p-8 max-w-md mx-auto flex flex-col min-h-screen">
-        <div class="flex justify-between items-center mb-14 mt-8">
+        <div class="flex justify-between items-center mb-10 mt-8">
             <div>
                 <p class="text-[11px] font-black text-slate-600 uppercase tracking-[0.3em] mb-1">BIENVENIDO AL</p>
                 <h2 class="text-4xl font-black text-white uppercase tracking-tighter">PODIUM</h2>
@@ -64,6 +59,18 @@
             </div>
             <button onclick="logout()" class="btn-salir uppercase">SALIR</button>
         </div>
+
+        <div class="stats-panel">
+            <div class="text-center border-r border-white/10 pr-6 w-1/2">
+                <p id="count-users" class="text-2xl font-black text-white">0</p>
+                <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest">PARTICIPANTES</p>
+            </div>
+            <div class="text-center pl-6 w-1/2">
+                <p id="count-pozo" class="text-2xl font-black text-white">$0</p>
+                <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest">POZO ACUMULADO</p>
+            </div>
+        </div>
+
         <p class="font-black text-slate-700 text-[12px] uppercase mb-8 tracking-[0.3em] text-center">CATEGORÍAS ACTIVAS</p>
         <div id="categories-container" class="space-y-6"></div>
     </div>
@@ -125,6 +132,13 @@
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "getDatos", usuario: session.usuario }) });
                 const d = await r.json();
                 session.bandas = d.bandas; session.misApuestas = d.misApuestas;
+                
+                // Actualizar Panel de Pozo
+                const uniqueUsers = [...new Set(d.misApuestas.map(a => a.usuario))].length || 1; 
+                const totalPozo = d.misApuestas.reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
+                document.getElementById('count-users').innerText = d.totalParticipantes || 0;
+                document.getElementById('count-pozo').innerText = "$" + (d.totalPozo || 0).toLocaleString();
+                
                 renderCategorias();
             } catch (e) { console.error(e); }
         }
@@ -134,25 +148,42 @@
             container.innerHTML = "";
             const cats = [...new Set(session.bandas.map(b => b.nivel))];
             cats.forEach((cat, index) => {
-                const apuestaPrevia = session.misApuestas.find(a => a.categoria === cat);
+                const apuesta = session.misApuestas.find(a => a.categoria === cat);
                 const card = document.createElement('div');
                 card.className = `${index % 2 === 0 ? 'card-gray-1' : 'card-gray-2'} rounded-[40px] text-center`;
                 let html = `<h4 class="font-black text-white uppercase text-2xl mb-6 tracking-tighter">${cat}</h4>`;
-                if(apuestaPrevia) {
+                
+                if(apuesta) {
+                    const edits = parseInt(apuesta.ediciones || 0);
                     html += `<div class="bg-black/40 p-5 rounded-3xl mb-6 border border-white/5">
-                                <p class="text-[10px] text-slate-500 font-black mb-3 uppercase tracking-widest text-center">TU PODIO:</p>
-                                <p class="text-sm text-slate-300 font-bold uppercase leading-relaxed text-center">${apuestaPrevia.p1}<br>${apuestaPrevia.p2}<br>${apuestaPrevia.p3}</p>
+                                <p class="text-[10px] text-slate-500 font-black mb-3 uppercase tracking-widest text-center">TU PODIO (FONDO: $${apuesta.monto}):</p>
+                                <p class="text-sm text-slate-300 font-bold uppercase leading-relaxed text-center">${apuesta.p1}<br>${apuesta.p2}<br>${apuesta.p3}</p>
                              </div>
-                             <div class="space-y-4">
-                                <button onclick="abrirCategoria('${cat}')" class="w-full bg-white/5 text-white p-5 rounded-2xl font-black text-sm uppercase border border-white/10">EDITAR PODIUM</button>
-                                <button onclick="verTendencias('${cat}')" class="w-full btn-trends p-5 rounded-2xl font-black uppercase">VER TENDENCIAS</button>
-                                <button onclick="cancelarApuesta('${cat}')" class="btn-delete">ELIMINAR APUESTA</button>
+                             <div class="space-y-4">`;
+                    
+                    if(edits < 3) {
+                        html += `<button onclick="confirmarEdicion('${cat}', ${edits})" class="w-full bg-white/5 text-white p-5 rounded-2xl font-black text-sm uppercase border border-white/10">EDITAR PODIUM</button>`;
+                    } else {
+                        html += `<p class="text-[9px] font-black text-red-500 uppercase">PODIUM BLINDADO (SIN CAMBIOS)</p>`;
+                    }
+                    
+                    html += `<button onclick="verTendencias('${cat}')" class="w-full btn-trends p-5 rounded-2xl font-black uppercase">VER TENDENCIAS</button>
+                             <button onclick="cancelarApuesta('${cat}')" class="btn-delete">ELIMINAR APUESTA</button>
                              </div>`;
                 } else {
                     html += `<button onclick="abrirCategoria('${cat}')" class="w-full bg-white text-slate-950 p-6 rounded-2xl font-black text-sm uppercase">APOSTAR</button>`;
                 }
                 card.innerHTML = html; container.appendChild(card);
             });
+        }
+
+        function confirmarEdicion(cat, edits) {
+            let mensaje = "";
+            if(edits === 0) mensaje = "¿Confirmar actualización de estrategia?\nEsta gestión tiene un costo operativo de $1.000. Tu fondo disponible para el premio final se ajustará a $18.000. Te quedarán 2 cambios disponibles.";
+            if(edits === 1) mensaje = "¿Confirmar nueva gestión de datos?\nPara procesar este segundo cambio, se aplicará un costo de mantenimiento de $1.000. Tu fondo en juego será de $17.000. Te quedará 1 último cambio disponible.";
+            if(edits === 2) mensaje = "¿Confirmar última actualización disponible?\nEste ajuste final de datos tiene un costo operativo de $1.000. Tu fondo definitivo para el pozo será de $16.000. Tras esta acción, tu Podium quedará blindado.";
+            
+            if(confirm(mensaje)) { abrirCategoria(cat); }
         }
 
         function abrirCategoria(cat) {
@@ -196,7 +227,7 @@
             if(!confirm("¿CONFIRMAS TU PODIUM?")) return;
             toggleLoader(true);
             try {
-                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "apostar", usuario: session.usuario, categoria: selectedCategory, p1: currentBet[0], p2: currentBet[1], p3: currentBet[2], monto: 1 }) });
+                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "apostar", usuario: session.usuario, categoria: selectedCategory, p1: currentBet[0], p2: currentBet[1], p3: currentBet[2] }) });
                 await cargarDatos(); nav('screen-menu');
             } catch (e) { alert("ERROR"); }
             toggleLoader(false);
@@ -207,8 +238,7 @@
             toggleLoader(true);
             try {
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: "cancelar", usuario: session.usuario, categoria: cat }) });
-                const d = await r.json();
-                if(d.success) { await cargarDatos(); }
+                await cargarDatos();
             } catch (e) { alert("ERROR"); }
             toggleLoader(false);
         }
