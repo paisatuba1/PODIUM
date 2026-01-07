@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Montserrat', sans-serif; background-color: #0b0f1a; color: #f8fafc; -webkit-text-size-adjust: 100%; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #0b0f1a; color: #f8fafc; overflow-x: hidden; }
         .premium-card { background: rgba(22, 28, 45, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); border-radius: 1.5rem; }
         .btn-gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); color: #000; font-weight: 900; }
         .btn-logout { background-color: #ef4444; color: white; border-radius: 0.5rem; padding: 0.3rem 0.6rem; font-size: 0.65rem; font-weight: 900; }
@@ -22,7 +22,7 @@
 
     <div id="loading-overlay" class="hidden fixed inset-0 bg-black/80 z-[100] flex flex-col items-center justify-center">
         <div class="loader mb-4"></div>
-        <p class="text-[10px] font-black uppercase tracking-widest text-amber-500">PROCESANDO...</p>
+        <p class="text-[10px] font-black uppercase tracking-widest text-amber-500">CARGANDO...</p>
     </div>
 
     <header id="global-header" class="hidden flex justify-between items-start mb-6">
@@ -50,10 +50,8 @@
 
     <div id="view-dashboard" class="hidden max-w-md mx-auto">
         <div class="premium-card p-6 mb-8 text-center border-amber-500/20 shadow-xl">
-            <p id="dash-region-tag" class="text-[10px] text-amber-500 font-black uppercase mb-1 tracking-widest text-center"></p>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">MONTO ESTIMADO</p>
-            <h3 id="dash-pozo" class="text-4xl font-black text-white my-1 text-center">$0</h3>
-            <p id="dash-participantes" class="text-[10px] font-bold uppercase text-slate-500 tracking-widest text-center">...</p>
+            <p id="dash-region-tag" class="text-[10px] text-amber-500 font-black uppercase mb-1 tracking-widest"></p>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">SELECCIONA NIVEL PARA VER POZO</p>
         </div>
         <div class="grid gap-4">
             <button onclick="abrirNivel('Básico')" class="premium-card p-6 flex justify-between items-center"><span class="font-black uppercase tracking-tight">NIVEL BÁSICO</span><span class="text-amber-500 font-black">→</span></button>
@@ -63,17 +61,21 @@
     </div>
 
     <div id="view-podium" class="hidden max-w-md mx-auto">
-        <div class="flex justify-between items-end mb-6">
-            <h2 id="podium-header" class="text-xl font-black uppercase text-amber-500 tracking-tighter"></h2>
-            <div id="edit-badge" class="hidden bg-red-600/20 text-red-500 text-[8px] px-2 py-1 rounded font-black uppercase">EDICIÓN</div>
+        <div class="premium-card p-4 mb-6 text-center border-amber-500/10">
+            <p id="podium-header" class="text-[10px] text-amber-500 font-black uppercase mb-1"></p>
+            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">MONTO ESTIMADO DE ESTE NIVEL</p>
+            <h3 id="podium-pozo" class="text-3xl font-black text-white">$0</h3>
         </div>
+        
         <div class="grid grid-cols-3 gap-3 mb-6">
             <div onclick="removeBand(1)" id="slot-1" class="podium-slot flex-col p-2 text-center"><span class="text-[7px] font-black text-amber-500/50 block">1°</span><span id="txt-p1" class="text-[9px] font-black uppercase leading-tight">VACÍO</span></div>
             <div onclick="removeBand(2)" id="slot-2" class="podium-slot flex-col p-2 text-center"><span class="text-[7px] font-black text-slate-500 block">2°</span><span id="txt-p2" class="text-[9px] font-black uppercase leading-tight">VACÍO</span></div>
             <div onclick="removeBand(3)" id="slot-3" class="podium-slot flex-col p-2 text-center"><span class="text-[7px] font-black text-slate-500 block">3°</span><span id="txt-p3" class="text-[9px] font-black uppercase leading-tight">VACÍO</span></div>
         </div>
-        <div id="band-container" class="grid grid-cols-2 gap-2 max-h-[35vh] overflow-y-auto pr-1"></div>
-        <div class="fixed bottom-0 left-0 w-full p-4 bg-slate-900/90 flex gap-3 backdrop-blur-md">
+
+        <div id="band-container" class="grid grid-cols-2 gap-2 max-h-[35vh] overflow-y-auto pr-1 pb-20"></div>
+
+        <div class="fixed bottom-0 left-0 w-full p-4 bg-slate-900/95 flex gap-3 backdrop-blur-md">
             <button onclick="showView('view-dashboard')" class="flex-1 border border-slate-700 py-4 rounded-xl text-[10px] font-black uppercase">CANCELAR</button>
             <button onclick="prepararConfirmacion()" class="flex-[2] btn-gold py-4 rounded-xl text-[10px] font-black uppercase shadow-lg">CONFIRMAR</button>
         </div>
@@ -81,14 +83,17 @@
 
     <div id="modal-confirm" class="hidden fixed inset-0 bg-black/95 flex items-center justify-center p-6 z-[110]">
         <div class="premium-card p-8 w-full max-w-sm text-center border-amber-500/30">
-            <h3 class="font-black mb-4 uppercase text-lg text-white text-center">¿CONFIRMAR?</h3>
-            <p id="modal-text" class="text-[10px] text-slate-400 mb-8 uppercase leading-relaxed font-bold text-center"></p>
-            <div class="flex gap-4"><button onclick="closeModal()" class="flex-1 text-[10px] font-black uppercase text-slate-500">NO</button><button onclick="execSave()" class="flex-1 btn-gold py-3 rounded-xl text-[10px] font-black uppercase">SÍ, ENVIAR</button></div>
+            <h3 class="font-black mb-4 uppercase text-lg text-white">¿CONFIRMAR?</h3>
+            <p id="modal-text" class="text-[10px] text-slate-400 mb-8 uppercase leading-relaxed font-bold"></p>
+            <div class="flex gap-4">
+                <button onclick="closeModal()" class="flex-1 text-[10px] font-black uppercase text-slate-500">NO</button>
+                <button onclick="execSave()" class="flex-1 btn-gold py-3 rounded-xl text-[10px] font-black uppercase">SÍ, ENVIAR</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const API = 'https://script.google.com/macros/s/AKfycbwqJB2sWcV_gbcxSGPIYbzlOUx0KfozKmL_2tmMgfvmYVFO17E-_zZSIfSOnoD-SUuU/exec';
+        const API = 'https://script.google.com/macros/s/AKfycbxAhZo4KOO1LEOirELzCd-AZKzHUPCGQ-LACKRA-Cyix4wjNDDHtZvPfCH7Mh87QlM/exec';
         let user = localStorage.getItem('podium_user');
         let app = { region: '', nivel: '', p1: '', p2: '', p3: '', ediciones: 0, existe: false };
         let todasLasBandas = [];
@@ -107,10 +112,12 @@
         function showView(id) {
             document.querySelectorAll('div[id^="view-"]').forEach(v => v.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
-            const btn = document.getElementById('btn-atras');
             const cont = document.getElementById('atras-container');
             if(id === 'view-region') cont.classList.add('invisible');
-            else { cont.classList.remove('invisible'); btn.onclick = () => showView(id === 'view-dashboard' ? 'view-region' : 'view-dashboard'); }
+            else {
+                cont.classList.remove('invisible');
+                document.getElementById('btn-atras').onclick = () => showView(id === 'view-dashboard' ? 'view-region' : 'view-dashboard');
+            }
         }
 
         async function handleLogin() {
@@ -121,7 +128,8 @@
             try {
                 const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'login', user: u, pass: p }) });
                 const d = await r.json();
-                if(d.success) { user = u; localStorage.setItem('podium_user', u); initApp(); } else alert('DATOS INCORRECTOS');
+                if(d.success) { user = u; localStorage.setItem('podium_user', u); initApp(); } 
+                else alert('DATOS INCORRECTOS');
             } catch(e) { alert('ERROR DE CONEXIÓN'); }
             toggleLoader(false);
         }
@@ -133,45 +141,44 @@
             const c = document.getElementById('region-list'); c.innerHTML = '';
             rs.forEach(r => {
                 const b = document.createElement('button');
-                b.className = 'premium-card p-5 font-black uppercase text-sm hover:border-amber-500 tracking-widest';
-                b.innerText = r; b.onclick = () => { app.region = r; showView('view-dashboard'); refreshDash(); };
+                b.className = 'premium-card p-5 font-black uppercase text-sm tracking-widest';
+                b.innerText = r; b.onclick = () => { app.region = r; showView('view-dashboard'); document.getElementById('dash-region-tag').innerText = r; };
                 c.appendChild(b);
             });
         }
 
-        async function refreshDash() {
-            toggleLoader(true);
-            try {
-                const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'getData', user, region: app.region, nivel: 'Básico' }) });
-                const d = await r.json();
-                todasLasBandas = d.bandas || [];
-                document.getElementById('dash-region-tag').innerText = app.region;
-                document.getElementById('dash-pozo').innerText = '$' + (d.config?.pozo || 0).toLocaleString();
-                document.getElementById('dash-participantes').innerText = `PARTICIPANTES: ${d.config?.participantes || 0}`;
-            } catch(e) { alert('ERROR AL CARGAR DATOS'); }
-            toggleLoader(false);
-        }
-
         async function abrirNivel(n) {
             app.nivel = n; app.p1 = app.p2 = app.p3 = '';
-            document.getElementById('podium-header').innerText = `NIVEL ${n}`;
+            // Normalizar nivel para el script: quita tildes
+            const nivelNormal = n.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            
             toggleLoader(true);
             try {
-                const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'getData', user, region: app.region, nivel: n }) });
+                const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'getData', user, region: app.region, nivel: nivelNormal }) });
                 const d = await r.json();
+                
+                todasLasBandas = d.bandas || [];
+                document.getElementById('podium-header').innerText = `${app.region} - NIVEL ${n}`;
+                document.getElementById('podium-pozo').innerText = '$' + (d.config?.pozo || 0).toLocaleString();
+
                 if(d.miApuesta) {
                     app.p1 = d.miApuesta.p1; app.p2 = d.miApuesta.p2; app.p3 = d.miApuesta.p3;
                     app.ediciones = d.miApuesta.ediciones; app.existe = true;
-                    document.getElementById('edit-badge').classList.remove('hidden');
-                } else { app.existe = false; document.getElementById('edit-badge').classList.add('hidden'); }
-                renderBandas(); syncUI(); showView('view-podium');
-            } catch(e) { alert('ERROR DE CONEXIÓN AL NIVEL'); }
+                } else { app.existe = false; }
+                
+                renderBandas(nivelNormal);
+                syncUI();
+                showView('view-podium');
+            } catch(e) { alert('ERROR AL CARGAR NIVEL'); }
             toggleLoader(false);
         }
 
-        function renderBandas() {
+        function renderBandas(nivelNorm) {
             const c = document.getElementById('band-container'); c.innerHTML = '';
-            const f = todasLasBandas.filter(b => b.region.trim().toLowerCase() === app.region.trim().toLowerCase() && b.nivel.trim().toLowerCase() === app.nivel.trim().toLowerCase());
+            const f = todasLasBandas.filter(b => 
+                b.region.trim().toLowerCase() === app.region.trim().toLowerCase() && 
+                b.nivel.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === nivelNorm
+            );
             f.forEach(b => {
                 const bt = document.createElement('button');
                 bt.className = 'premium-card p-4 text-[9px] font-black uppercase leading-tight';
@@ -186,15 +193,14 @@
         function syncUI() {
             for(let i=1; i<=3; i++) {
                 document.getElementById('txt-p'+i).innerText = app['p'+i] || 'VACÍO';
-                document.getElementById('slot-'+i).className = `podium-slot flex-col p-2 text-center ${app['p'+i] ? 'slot-filled shadow-lg shadow-amber-500/10' : ''}`;
+                document.getElementById('slot-'+i).className = `podium-slot flex-col p-2 text-center ${app['p'+i] ? 'slot-filled' : ''}`;
             }
         }
 
         function closeModal() { document.getElementById('modal-confirm').classList.add('hidden'); }
-
         function prepararConfirmacion() {
-            if(!app.p1 || !app.p2 || !app.p3) return alert('COMPLETA LOS 3 LUGARES');
-            const msg = app.existe ? `ESTA EDICIÓN COSTARÁ $1.000. INTENTOS RESTANTES: ${3 - app.ediciones}` : `ESTÁS REGISTRANDO TU PÓDIUM POR $20.000.`;
+            if(!app.p1 || !app.p2 || !app.p3) return alert('COMPLETA EL PÓDIUM');
+            const msg = app.existe ? `EDITAR COSTARÁ $1.000. INTENTOS REALIZADOS: ${app.ediciones}` : `REGISTRAR POR $20.000.`;
             document.getElementById('modal-text').innerText = msg;
             document.getElementById('modal-confirm').classList.remove('hidden');
         }
@@ -202,8 +208,11 @@
         async function execSave() {
             closeModal(); toggleLoader(true);
             try {
-                const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'saveApuesta', user, region: app.region, categoria: app.nivel, p1: app.p1, p2: app.p2, p3: app.p3 }) });
-                if(r.ok) { alert('¡PÓDIUM REGISTRADO!'); showView('view-dashboard'); refreshDash(); }
+                const nivelNormal = app.nivel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const r = await fetch(API, { method: 'POST', body: JSON.stringify({ 
+                    action: 'saveApuesta', user, region: app.region, categoria: nivelNormal, p1: app.p1, p2: app.p2, p3: app.p3 
+                }) });
+                if(r.ok) { alert('¡PÓDIUM GUARDADO!'); showView('view-dashboard'); }
             } catch(e) { alert('ERROR AL GUARDAR'); }
             toggleLoader(false);
         }
