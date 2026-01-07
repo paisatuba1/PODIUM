@@ -21,7 +21,8 @@
         .text-pozo { font-size: 1.1rem; color: #fbbf24; font-weight: 900; }
         .btn-modificar { background: #ef4444; color: white; font-size: 10px; padding: 6px 10px; border-radius: 6px; font-weight: 900; }
         .btn-stats { background: #3b82f6; color: white; font-size: 10px; padding: 6px 10px; border-radius: 6px; font-weight: 900; }
-        .band-disabled { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
+        .band-disabled { opacity: 0.2; pointer-events: none; filter: grayscale(1); }
+        .btn-cerrar-modal { border: 2px solid #334155; padding: 10px 20px; border-radius: 12px; font-weight: 900; color: #94a3b8; text-transform: uppercase; font-size: 12px; }
     </style>
 </head>
 <body class="p-4">
@@ -40,8 +41,8 @@
     <div id="view-login" class="max-w-md mx-auto mt-20">
         <h1 class="text-4xl font-black text-center mb-10 uppercase tracking-tighter">PÓDIUM <span class="text-amber-500">PREMIUM</span></h1>
         <div class="premium-card p-10">
-            <input id="login-user" type="text" placeholder="USUARIO" class="w-full p-5 mb-5 rounded-2xl bg-slate-900 border border-slate-800 text-lg font-bold uppercase">
-            <input id="login-pass" type="password" placeholder="CONTRASEÑA" class="w-full p-5 mb-8 rounded-2xl bg-slate-900 border border-slate-800 text-lg font-bold">
+            <input id="login-user" type="text" placeholder="USUARIO" class="w-full p-5 mb-5 rounded-2xl bg-slate-900 border border-slate-800 text-lg font-bold uppercase focus:outline-none">
+            <input id="login-pass" type="password" placeholder="CONTRASEÑA" class="w-full p-5 mb-8 rounded-2xl bg-slate-900 border border-slate-800 text-lg font-bold focus:outline-none">
             <button onclick="handleLogin()" class="w-full btn-gold py-5 rounded-2xl text-lg font-black uppercase">ENTRAR</button>
         </div>
     </div>
@@ -57,9 +58,9 @@
             <div class="premium-card p-8 border-amber-500/30">
                 <p class="text-[11px] font-black text-slate-400 uppercase text-center mb-4 tracking-widest">POZO ESTIMADO</p>
                 <div class="space-y-3">
-                    <div class="flex justify-between items-center"><span class="font-bold">BÁSICO:</span><span id="pozo-basico-label" class="text-pozo">$0</span></div>
-                    <div class="flex justify-between items-center"><span class="font-bold">MEDIO:</span><span id="pozo-medio-label" class="text-pozo">$0</span></div>
-                    <div class="flex justify-between items-center"><span class="font-bold">ALTO:</span><span id="pozo-alto-label" class="text-pozo">$0</span></div>
+                    <div class="flex justify-between items-center"><span class="font-bold uppercase text-xs">BÁSICO:</span><span id="pozo-basico-label" class="text-pozo">$0</span></div>
+                    <div class="flex justify-between items-center"><span class="font-bold uppercase text-xs">MEDIO:</span><span id="pozo-medio-label" class="text-pozo">$0</span></div>
+                    <div class="flex justify-between items-center"><span class="font-bold uppercase text-xs">ALTO:</span><span id="pozo-alto-label" class="text-pozo">$0</span></div>
                 </div>
             </div>
 
@@ -104,13 +105,11 @@
     </div>
 
     <div id="modal-confirm" class="hidden fixed inset-0 bg-black/95 flex items-center justify-center p-6 z-[110]">
-        <div id="modal-content" class="premium-card p-10 w-full max-w-sm text-center">
-            <h3 id="modal-title" class="font-black mb-6 uppercase text-xl">¿CONFIRMAR?</h3>
-            <p id="modal-text" class="text-[12px] text-slate-400 mb-10 uppercase font-bold"></p>
-            <div id="modal-footer" class="flex gap-5">
-                <button onclick="closeModal()" class="flex-1 text-[12px] font-black uppercase text-slate-500">NO</button>
-                <button id="btn-modal-ok" onclick="execSave()" class="flex-1 btn-gold py-4 rounded-xl text-[12px] font-black uppercase">SÍ, ENVIAR</button>
-            </div>
+        <div class="premium-card p-10 w-full max-w-sm text-center">
+            <h3 id="modal-title" class="font-black mb-6 uppercase text-xl text-white tracking-tighter"></h3>
+            <p id="modal-text" class="text-[13px] text-slate-400 mb-10 uppercase font-black leading-relaxed whitespace-pre-line"></p>
+            <div id="modal-footer" class="flex gap-5 justify-center">
+                </div>
         </div>
     </div>
 
@@ -147,7 +146,7 @@
             const c = document.getElementById('region-list'); c.innerHTML = '';
             rs.forEach(r => {
                 const b = document.createElement('button');
-                b.className = 'premium-card p-6 font-black uppercase text-lg text-center';
+                b.className = 'premium-card p-6 font-black uppercase text-lg text-center tracking-widest';
                 b.innerText = r; b.onclick = () => cargarDatosRegion(r);
                 c.appendChild(b);
             });
@@ -194,9 +193,10 @@
             const f = bandas.filter(b => b.region.trim().toLowerCase() === app.region.trim().toLowerCase() && b.nivel.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === nNorm);
             f.forEach(b => {
                 const bt = document.createElement('button');
-                bt.id = `btn-banda-${b.nombre.replace(/\s+/g, '')}`;
                 bt.className = 'premium-card p-5 text-[11px] font-black uppercase leading-tight';
                 bt.innerText = b.nombre; bt.onclick = () => {
+                    const picks = [app.p1, app.p2, app.p3];
+                    if(picks.includes(b.nombre)) return; // Bloqueo de duplicados
                     if(!app.p1) app.p1 = b.nombre; else if(!app.p2) app.p2 = b.nombre; else if(!app.p3) app.p3 = b.nombre;
                     syncUI();
                 }; c.appendChild(bt);
@@ -220,19 +220,50 @@
             try {
                 const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'getStats', region: app.region, nivel: n }) });
                 const d = await r.json();
-                let txt = d.stats.length > 0 ? d.stats.map((s,i) => `${i+1}. ${s.nombre} (${s.votos} votos)`).join('\n') : "SIN DATOS AÚN";
+                const totalParticipantes = cacheData[n].config.participantes || 1;
+                
+                let statsText = "";
+                if(d.stats && d.stats.length > 0) {
+                    statsText = d.stats.map(s => {
+                        const porcentaje = ((s.votos / totalParticipantes) * 100).toFixed(1);
+                        return `${s.nombre}\n${porcentaje}% DE PREFERENCIA`;
+                    }).join('\n\n');
+                } else { statsText = "SIN DATOS SUFICIENTES"; }
+
                 document.getElementById('modal-title').innerText = "ESTADÍSTICAS";
-                document.getElementById('modal-text').innerText = "TOP 2 BANDAS SELECCIONADAS:\n\n" + txt;
-                document.getElementById('btn-modal-ok').classList.add('hidden');
+                document.getElementById('modal-text').innerText = statsText;
+                
+                const footer = document.getElementById('modal-footer');
+                footer.innerHTML = `<button onclick="closeModal()" class="btn-cerrar-modal">CERRAR</button>`;
+                
                 document.getElementById('modal-confirm').classList.remove('hidden');
             } catch(e) { alert('ERROR STATS'); }
             toggleLoader(false);
         }
 
-        function closeModal() { 
-            document.getElementById('modal-confirm').classList.add('hidden'); 
-            document.getElementById('btn-modal-ok').classList.remove('hidden');
+        function closeModal() { document.getElementById('modal-confirm').classList.add('hidden'); }
+
+        function prepararConfirmacion() {
+            if(!app.p1 || !app.p2 || !app.p3) return alert('COMPLETA EL PÓDIUM');
             document.getElementById('modal-title').innerText = "¿CONFIRMAR?";
+            document.getElementById('modal-text').innerText = app.existe ? `MODIFICAR COSTARÁ $1.000.\nINTENTOS: ${app.ediciones}` : `REGISTRAR POR $20.000.`;
+            
+            const footer = document.getElementById('modal-footer');
+            footer.innerHTML = `
+                <button onclick="closeModal()" class="text-[12px] font-black uppercase text-slate-500">NO</button>
+                <button onclick="execSave()" class="btn-gold py-4 px-8 rounded-xl text-[12px] font-black uppercase">SÍ, ENVIAR</button>
+            `;
+            document.getElementById('modal-confirm').classList.remove('hidden');
+        }
+
+        async function execSave() {
+            closeModal(); toggleLoader(true);
+            try {
+                const nNorm = app.nivel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'saveApuesta', user, region: app.region, categoria: nNorm, p1: app.p1, p2: app.p2, p3: app.p3 }) });
+                alert('¡ÉXITO!'); await cargarDatosRegion(app.region); 
+            } catch(e) { alert('ERROR'); }
+            toggleLoader(false);
         }
 
         function removeBand(s) { app['p'+s] = ''; syncUI(); }
@@ -247,22 +278,6 @@
                 const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'login', user: u, pass: p }) });
                 const d = await r.json();
                 if(d.success) { user = u; localStorage.setItem('podium_user', u); initApp(); } else alert('ERROR');
-            } catch(e) { alert('ERROR'); }
-            toggleLoader(false);
-        }
-
-        function prepararConfirmacion() {
-            if(!app.p1 || !app.p2 || !app.p3) return alert('COMPLETA EL PÓDIUM');
-            document.getElementById('modal-text').innerText = app.existe ? `MODIFICAR COSTARÁ $1.000. INTENTOS: ${app.ediciones}` : `REGISTRAR POR $20.000.`;
-            document.getElementById('modal-confirm').classList.remove('hidden');
-        }
-
-        async function execSave() {
-            closeModal(); toggleLoader(true);
-            try {
-                const nNorm = app.nivel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'saveApuesta', user, region: app.region, categoria: nNorm, p1: app.p1, p2: app.p2, p3: app.p3 }) });
-                alert('¡ÉXITO!'); await cargarDatosRegion(app.region); 
             } catch(e) { alert('ERROR'); }
             toggleLoader(false);
         }
