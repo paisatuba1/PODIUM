@@ -26,7 +26,7 @@
 
     <div id="loading-overlay" class="hidden fixed inset-0 bg-black/80 z-[100] flex flex-col items-center justify-center">
         <div class="loader mb-4"></div>
-        <p class="text-[12px] font-black uppercase tracking-widest text-amber-500">CARGANDO DATOS...</p>
+        <p class="text-[12px] font-black uppercase tracking-widest text-amber-500">ACTUALIZANDO...</p>
     </div>
 
     <header id="global-header" class="hidden flex justify-between items-start mb-8">
@@ -57,7 +57,7 @@
         
         <div class="grid gap-6">
             <div class="premium-card p-8 border-amber-500/30">
-                <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">POZO ESTIMADO DISCRIMINADO</p>
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">POZO ESTIMADO</p>
                 <div class="space-y-3">
                     <div class="flex justify-between items-center"><span class="font-bold text-sm">BÁSICO:</span><span id="pozo-basico-label" class="text-pozo">$0</span></div>
                     <div class="flex justify-between items-center"><span class="font-bold text-sm">MEDIO:</span><span id="pozo-medio-label" class="text-pozo">$0</span></div>
@@ -154,17 +154,14 @@
             document.getElementById('dash-region-tag').innerText = region;
             showView('view-dashboard');
             toggleLoader(true);
-            
             const niveles = ['basico', 'medio', 'alto'];
             try {
                 const promesas = niveles.map(n => fetch(API, { method: 'POST', body: JSON.stringify({ action: 'getData', user, region, nivel: n }) }).then(r => r.json()));
                 const resultados = await Promise.all(promesas);
-                
                 niveles.forEach((n, i) => {
                     const d = resultados[i];
                     cacheData[n] = d;
                     document.getElementById(`pozo-${n}-label`).innerText = `$${(d.config?.pozo || 0).toLocaleString()}`;
-                    
                     const badge = document.getElementById(`mod-${n}`);
                     if(d.miApuesta) badge.classList.remove('hidden');
                     else badge.classList.add('hidden');
@@ -178,15 +175,12 @@
             const nNorm = nivelLabel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const d = cacheData[nNorm];
             if(!d) return;
-
             app.p1 = app.p2 = app.p3 = '';
             document.getElementById('podium-header').innerText = `${nivelLabel.toUpperCase()}`;
-
             if(d.miApuesta) {
                 app.p1 = d.miApuesta.p1; app.p2 = d.miApuesta.p2; app.p3 = d.miApuesta.p3;
                 app.ediciones = d.miApuesta.ediciones; app.existe = true;
             } else { app.existe = false; }
-            
             renderBandas(d.bandas, nNorm);
             syncUI();
             showView('view-podium');
@@ -248,8 +242,8 @@
                     action: 'saveApuesta', user, region: app.region, categoria: nNorm, p1: app.p1, p2: app.p2, p3: app.p3 
                 }) });
                 alert('¡ÉXITO!'); 
-                cargarDatosRegion(app.region); 
-            } catch(e) { alert('ERROR'); }
+                await cargarDatosRegion(app.region); 
+            } catch(e) { alert('ERROR AL GUARDAR'); }
             toggleLoader(false);
         }
     </script>
