@@ -94,7 +94,7 @@
         </div>
         <div id="band-container" class="grid grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto pb-24"></div>
         <div class="fixed bottom-0 left-0 w-full p-5 bg-slate-900/95 flex gap-4 backdrop-blur-md">
-            <button onclick="showView('view-dashboard')" class="flex-1 border border-slate-700 py-5 rounded-2xl text-[12px] font-black uppercase">CANCELAR</button>
+            <button onclick="volverDashboard()" class="flex-1 border border-slate-700 py-5 rounded-2xl text-[12px] font-black uppercase">CANCELAR</button>
             <button onclick="prepararConfirmacion()" class="flex-[2] btn-gold py-5 rounded-2xl text-[12px] font-black uppercase shadow-lg">CONFIRMAR</button>
         </div>
     </div>
@@ -116,7 +116,21 @@
         let app = { region: '', nivel: '', p1: '', p2: '', p3: '', ediciones: 0, existe: false };
         let cacheData = {};
 
-        if (user) initApp();
+        // INICIO: Recuperar estado al refrescar
+        window.onload = () => {
+            if (user) {
+                const savedRegion = localStorage.getItem('podium_region');
+                const savedNivel = localStorage.getItem('podium_nivel');
+                
+                initApp();
+                
+                if (savedRegion) {
+                    cargarDatosRegion(savedRegion).then(() => {
+                        if (savedNivel) abrirNivel(savedNivel);
+                    });
+                }
+            }
+        };
 
         function toggleLoader(s, text = "PROCESANDO...") { 
             document.getElementById('loader-text').innerText = text;
@@ -137,7 +151,10 @@
             if(id === 'view-region') cont.classList.add('invisible');
             else {
                 cont.classList.remove('invisible');
-                document.getElementById('btn-atras').onclick = () => showView(id === 'view-dashboard' ? 'view-region' : 'view-dashboard');
+                document.getElementById('btn-atras').onclick = () => {
+                    if (id === 'view-podium') volverDashboard();
+                    else volverRegiones();
+                };
             }
         }
 
@@ -154,6 +171,7 @@
 
         async function cargarDatosRegion(region) {
             app.region = region;
+            localStorage.setItem('podium_region', region); // Guardar persistencia
             document.getElementById('dash-region-tag').innerText = region;
             showView('view-dashboard');
             toggleLoader(true, "CARGANDO DATOS...");
@@ -181,6 +199,7 @@
 
         function abrirNivel(nivelLabel) {
             app.nivel = nivelLabel;
+            localStorage.setItem('podium_nivel', nivelLabel); // Guardar persistencia
             const nNorm = nivelLabel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const d = cacheData[nNorm];
             app.p1 = app.p2 = app.p3 = '';
@@ -234,7 +253,6 @@
             const uniquePicks = new Set(picks);
             if(uniquePicks.size !== 3) return alert('ERROR: UNA BANDA NO PUEDE ESTAR EN DOS POSICIONES');
 
-            // SI EXISTE (EDICIÓN), GUARDA DIRECTO. SI ES NUEVA, PIDE CONFIRMACIÓN DE VALOR.
             if(app.existe) {
                 execSave();
             } else {
@@ -252,6 +270,7 @@
                 const nNorm = app.nivel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'saveApuesta', user, region: app.region, categoria: nNorm, p1: app.p1, p2: app.p2, p3: app.p3 }) });
                 alert('¡ÉXITO!'); await cargarDatosRegion(app.region); 
+                volverDashboard();
             } catch(e) { alert('ERROR'); }
             toggleLoader(false);
         }
@@ -296,11 +315,29 @@
             toggleLoader(false);
         }
 
+        function volverDashboard() {
+            localStorage.removeItem('podium_nivel');
+            app.nivel = '';
+            showView('view-dashboard');
+        }
+
+        function volverRegiones() {
+            localStorage.removeItem('podium_region');
+            localStorage.removeItem('podium_nivel');
+            app.region = '';
+            app.nivel = '';
+            showView('view-region');
+        }
+
         function closeModal() { 
             document.getElementById('modal-confirm').classList.add('hidden'); 
             document.getElementById('btn-modal-cancel').classList.remove('hidden');
         }
-        function logout() { localStorage.clear(); location.reload(); }
+
+        function logout() { 
+            localStorage.clear(); 
+            location.reload(); 
+        }
     </script>
 </body>
 </html>
