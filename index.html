@@ -41,7 +41,7 @@
         <div class="premium-card p-10 shadow-2xl">
             <input id="login-user" type="text" placeholder="USUARIO" class="w-full p-5 mb-5 rounded-2xl bg-slate-900 border border-slate-800 text-lg font-bold uppercase outline-none focus:border-amber-500">
             <input id="login-pass" type="password" placeholder="CONTRASEÑA" class="w-full p-5 mb-8 rounded-2xl bg-slate-900 border border-slate-800 text-lg font-bold outline-none focus:border-amber-500">
-            <button onclick="handleLogin()" class="w-full btn-gold py-5 rounded-2xl text-lg font-black uppercase shadow-lg active:scale-95 transition-transform">ENTRAR</button>
+            <button onclick="handleLogin()" class="w-full btn-gold py-5 rounded-2xl text-lg font-black uppercase shadow-lg">ENTRAR</button>
         </div>
     </div>
 
@@ -173,7 +173,7 @@
 
         function confirmarModificar(nivelLabel) {
             document.getElementById('modal-title').innerText = "ATENCIÓN";
-            document.getElementById('modal-text').innerText = "Vas a editar tu apuesta.\n\nEste proceso tiene un costo de $1.000 que se descontará del pozo.";
+            document.getElementById('modal-text').innerText = "VAS A EDITAR TU APUESTA.\n\nESTE PROCESO TIENE UN COSTO DE $1.000 QUE SE DESCONTARÁ DEL POZO.";
             document.getElementById('btn-modal-ok').innerText = "ENTENDIDO";
             document.getElementById('btn-modal-ok').onclick = () => { closeModal(); abrirNivel(nivelLabel); };
             document.getElementById('modal-confirm').classList.remove('hidden');
@@ -234,11 +234,16 @@
             const uniquePicks = new Set(picks);
             if(uniquePicks.size !== 3) return alert('ERROR: UNA BANDA NO PUEDE ESTAR EN DOS POSICIONES');
 
-            document.getElementById('modal-title').innerText = "¿CONFIRMAR?";
-            document.getElementById('modal-text').innerText = app.existe ? `MODIFICAR COSTARÁ $1.000.\nINTENTOS REALIZADOS: ${app.ediciones}` : `ESTA APUESTA TIENE UN VALOR DE $20.000.`;
-            document.getElementById('btn-modal-ok').innerText = "SÍ, ENVIAR";
-            document.getElementById('btn-modal-ok').onclick = execSave;
-            document.getElementById('modal-confirm').classList.remove('hidden');
+            // SI EXISTE (EDICIÓN), GUARDA DIRECTO. SI ES NUEVA, PIDE CONFIRMACIÓN DE VALOR.
+            if(app.existe) {
+                execSave();
+            } else {
+                document.getElementById('modal-title').innerText = "¿CONFIRMAR?";
+                document.getElementById('modal-text').innerText = `ESTA APUESTA TIENE UN VALOR DE $20.000.`;
+                document.getElementById('btn-modal-ok').innerText = "SÍ, ENVIAR";
+                document.getElementById('btn-modal-ok').onclick = execSave;
+                document.getElementById('modal-confirm').classList.remove('hidden');
+            }
         }
 
         async function execSave() {
@@ -271,16 +276,14 @@
             const u = document.getElementById('login-user').value.trim();
             const p = document.getElementById('login-pass').value.trim();
             if(!u || !p) return;
-            
             toggleLoader(true, "AUTENTICANDO...");
             try {
                 const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'login', user: u, pass: p }) });
                 const d = await r.json();
-                
                 if(d.success) {
                     if(d.status === 'INACTIVO') {
                         document.getElementById('modal-title').innerText = "CUENTA INACTIVA";
-                        document.getElementById('modal-text').innerText = "Tu usuario no se encuentra activo.\n\nPor favor, comunícate con el administrador para habilitar tu cuenta.";
+                        document.getElementById('modal-text').innerText = "TU USUARIO NO SE ENCUENTRA ACTIVO.\n\nPOR FAVOR, COMUNÍCATE CON EL ADMINISTRADOR PARA HABILITAR TU CUENTA.";
                         document.getElementById('btn-modal-ok').innerText = "ENTENDIDO";
                         document.getElementById('btn-modal-ok').onclick = closeModal;
                         document.getElementById('btn-modal-cancel').classList.add('hidden');
@@ -288,9 +291,7 @@
                     } else {
                         user = u; localStorage.setItem('podium_user', u); initApp();
                     }
-                } else {
-                    alert('DATOS INCORRECTOS. VERIFICA TU USUARIO Y CONTRASEÑA.');
-                }
+                } else { alert('DATOS INCORRECTOS.'); }
             } catch(e) { alert('ERROR DE CONEXIÓN'); }
             toggleLoader(false);
         }
