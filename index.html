@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PÓDIUM PREMIUM v1.3</title>
+    <title>PÓDIUM PREMIUM v2.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -21,6 +21,11 @@
         .btn-modificar { background: #ef4444; color: white; font-size: 10px; padding: 8px 12px; border-radius: 8px; font-weight: 900; }
         .btn-stats { background: #3b82f6; color: white; font-size: 10px; padding: 8px 12px; border-radius: 8px; font-weight: 900; }
         .band-disabled { opacity: 0.2 !important; pointer-events: none !important; filter: grayscale(1); }
+        
+        .btn-results-locked { background: rgba(51, 65, 85, 0.3); color: rgba(148, 163, 184, 0.4); border: 1px solid rgba(255,255,255,0.02); cursor: not-allowed; }
+        .btn-results-active { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; font-weight: 900; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3); }
+        .region-closed { opacity: 0.5; position: relative; }
+        .region-closed::after { content: 'APUESTAS CERRADAS'; position: absolute; top: 10px; right: 15px; font-size: 7px; background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 900; }
     </style>
 </head>
 <body class="p-4">
@@ -32,10 +37,11 @@
 
     <header id="global-header" class="hidden flex justify-between items-start mb-8">
         <div id="atras-container" class="w-16"><button id="btn-atras" class="text-[11px] font-black text-slate-500 uppercase tracking-widest pt-2">← ATRÁS</button></div>
-        <div class="text-center flex-1 text-amber-500 font-black tracking-tighter uppercase">PÓDIUM PREMIUM v1.3<p id="header-username" class="text-[10px] text-slate-400 font-bold"></p></div>
+        <div class="text-center flex-1 text-amber-500 font-black tracking-tighter uppercase">PÓDIUM PREMIUM v2.1<p id="header-username" class="text-[10px] text-slate-400 font-bold"></p></div>
         <div class="w-16 flex justify-end"><button onclick="logout()" class="btn-logout uppercase tracking-tighter">SALIR</button></div>
     </header>
 
+    <!-- VISTA LOGIN -->
     <div id="view-login" class="max-w-md mx-auto mt-20">
         <h1 class="text-4xl font-black text-center mb-10 uppercase tracking-tighter">PÓDIUM <span class="text-amber-500">PREMIUM</span></h1>
         <div class="premium-card p-10 shadow-2xl">
@@ -45,11 +51,24 @@
         </div>
     </div>
 
+    <!-- VISTA REGIONES -->
     <div id="view-region" class="hidden max-w-md mx-auto">
-        <h2 class="text-3xl font-black mb-10 text-center uppercase">REGIÓN</h2>
-        <div id="region-list" class="grid gap-4"></div>
+        <h2 class="text-3xl font-black mb-10 text-center uppercase tracking-tight">REGIÓN</h2>
+        <div id="region-list" class="grid gap-4 mb-10"></div>
+        <div class="border-t border-slate-800 pt-8 pb-10">
+            <button onclick="abrirResultados()" id="btn-main-results" class="premium-card w-full p-6 font-black uppercase text-lg text-center transition-all">
+                RESULTADOS
+            </button>
+        </div>
     </div>
 
+    <!-- VISTA RESULTADOS OFICIALES -->
+    <div id="view-resultados" class="hidden max-w-md mx-auto pb-10">
+        <h2 class="text-3xl font-black mb-8 text-center uppercase tracking-tighter text-amber-500">GANADORES OFICIALES</h2>
+        <div id="resultados-lista" class="space-y-6"></div>
+    </div>
+
+    <!-- DASHBOARD NIVELES -->
     <div id="view-dashboard" class="hidden max-w-md mx-auto pb-10">
         <p id="dash-region-tag" class="text-center text-amber-500 font-black uppercase mb-8 text-lg tracking-widest"></p>
         <div class="grid gap-4"> 
@@ -85,6 +104,7 @@
         </div>
     </div>
 
+    <!-- PÓDIUM -->
     <div id="view-podium" class="hidden max-w-md mx-auto">
         <h2 id="podium-header" class="text-center text-2xl font-black uppercase text-amber-500 mb-8 tracking-tighter"></h2>
         <div id="podium-grid" class="grid grid-cols-3 gap-4 mb-8">
@@ -99,6 +119,7 @@
         </div>
     </div>
 
+    <!-- MODAL -->
     <div id="modal-confirm" class="hidden fixed inset-0 bg-black/95 flex items-center justify-center p-6 z-[110]">
         <div class="premium-card p-10 w-full max-w-sm text-center">
             <h3 id="modal-title" class="font-black mb-6 uppercase text-xl text-white"></h3>
@@ -111,17 +132,14 @@
     </div>
 
     <script>
-        const API = 'https://script.google.com/macros/s/AKfycbxIL2gQLeTXOTOF_sWxbY7EsI4Gd8cDR_8_Cu8CpjTSNDMtykyC331v9y8STUbtyk16/exec';
+        const API = 'https://script.google.com/macros/s/AKfycbzpFo0NVMLB3vEiJR7DLTNWgHnreraDlTd9WRuZI63TlJrlG-aBDqVrLSSBgT9hfe5u/exec';
         
-        const LIMITES_NIVEL = {
-            'basico': 2,
-            'medio': 2,
-            'alto': 3
-        };
+        const LIMITES_NIVEL = { 'basico': 2, 'medio': 2, 'alto': 3 };
 
         let user = localStorage.getItem('podium_user');
         let app = { region: '', nivel: '', p1: '', p2: '', p3: '', ediciones: 0, existe: false };
         let cacheData = {};
+        let configGlobal = { config: {}, resultadosActivos: false, regiones: [], ganadoresOficiales: [] };
 
         if (user) initApp();
 
@@ -133,6 +151,15 @@
         async function initApp() {
             document.getElementById('header-username').innerText = user;
             document.getElementById('global-header').classList.remove('hidden');
+            
+            toggleLoader(true, "CARGANDO CONFIGURACIÓN...");
+            try {
+                const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'getInitData' }) });
+                configGlobal = await r.json();
+                actualizarBotonResultados();
+            } catch(e) { console.error("Error initData:", e); }
+            toggleLoader(false);
+
             const savedRegion = localStorage.getItem('podium_region');
             const savedNivel = localStorage.getItem('podium_nivel');
             if (savedRegion) {
@@ -146,21 +173,14 @@
             }
         }
 
-        function showView(id) {
-            document.querySelectorAll('div[id^="view-"]').forEach(v => v.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            const cont = document.getElementById('atras-container');
-            if(id === 'view-region') cont.classList.add('invisible');
-            else {
-                cont.classList.remove('invisible');
-                document.getElementById('btn-atras').onclick = () => {
-                    if(id === 'view-dashboard') {
-                        localStorage.removeItem('podium_region');
-                        showView('view-region');
-                    } else if(id === 'view-podium') {
-                        cancelarPodium();
-                    }
-                };
+        function actualizarBotonResultados() {
+            const btn = document.getElementById('btn-main-results');
+            if (configGlobal.resultadosActivos) {
+                btn.className = 'premium-card w-full p-6 font-black uppercase text-lg text-center btn-results-active';
+                btn.innerHTML = 'VER RESULTADOS';
+            } else {
+                btn.className = 'premium-card w-full p-6 font-black uppercase text-lg text-center btn-results-locked';
+                btn.innerHTML = 'RESULTADOS <span class="block text-[8px] mt-1 opacity-50">PRÓXIMAMENTE DISPONIBLES</span>';
             }
         }
 
@@ -168,13 +188,63 @@
             const rs = ['NORTE', 'ORIENTE', 'CENTRO-SUR', 'OCCIDENTE PRÓSPERO', 'MAGDALENA CALDENSE', 'ALTO OCCIDENTE'];
             const c = document.getElementById('region-list'); c.innerHTML = '';
             rs.forEach(r => {
+                const statusObj = configGlobal.regiones.find(reg => reg.nombre.toUpperCase() === r.toUpperCase());
+                const isClosed = statusObj && statusObj.estado === 'CERRADA';
+                
                 const b = document.createElement('button');
-                b.className = 'premium-card p-5 font-black uppercase text-lg text-center';
-                b.innerText = r; b.onclick = () => {
+                b.className = `premium-card p-6 font-black uppercase text-lg text-center active:scale-95 transition-transform ${isClosed ? 'region-closed' : ''}`;
+                b.innerText = r; 
+                b.onclick = () => {
+                    if(isClosed) {
+                        document.getElementById('modal-title').innerText = "REGIÓN CERRADA";
+                        document.getElementById('modal-text').innerText = "Las apuestas para esta región han finalizado.\nNo se permiten nuevos registros ni ediciones.";
+                        document.getElementById('btn-modal-ok').innerText = "ENTENDIDO";
+                        document.getElementById('btn-modal-ok').onclick = closeModal;
+                        document.getElementById('btn-modal-cancel').classList.add('hidden');
+                        document.getElementById('modal-confirm').classList.remove('hidden');
+                        return;
+                    }
                     localStorage.setItem('podium_region', r);
                     cargarDatosRegion(r);
                 };
                 c.appendChild(b);
+            });
+        }
+
+        function renderResultados() {
+            const lista = document.getElementById('resultados-lista');
+            lista.innerHTML = '';
+            
+            const ganadoresVisibles = configGlobal.ganadoresOficiales.filter(g => {
+                const status = configGlobal.regiones.find(r => r.nombre.toUpperCase() === g.region.toUpperCase());
+                return status && status.mostrarResultados;
+            });
+
+            if (ganadoresVisibles.length === 0) {
+                lista.innerHTML = '<div class="premium-card p-10 text-center"><p class="text-slate-400 font-bold uppercase text-[10px]">NO HAY GANADORES PUBLICADOS AÚN.</p></div>';
+                return;
+            }
+
+            const regionesUnicas = [...new Set(ganadoresVisibles.map(g => g.region))];
+            regionesUnicas.forEach(reg => {
+                const container = document.createElement('div');
+                container.className = 'premium-card p-6 border-amber-500/20 mb-4';
+                let html = `<h4 class="text-amber-500 font-black uppercase text-sm mb-4 tracking-widest text-center border-b border-slate-800 pb-2">${reg}</h4>`;
+                const ganadoresReg = ganadoresVisibles.filter(g => g.region === reg);
+                ganadoresReg.forEach(gan => {
+                    html += `
+                        <div class="mb-6 last:mb-0">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-2">NIVEL ${gan.nivel}</p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center text-[11px] font-bold uppercase"><span class="text-slate-500">1°</span> <span>${gan.p1}</span></div>
+                                <div class="flex justify-between items-center text-[11px] font-bold uppercase"><span class="text-slate-500">2°</span> <span>${gan.p2}</span></div>
+                                ${gan.p3 ? `<div class="flex justify-between items-center text-[11px] font-bold uppercase"><span class="text-slate-500">3°</span> <span>${gan.p3}</span></div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+                lista.appendChild(container);
             });
         }
 
@@ -197,25 +267,33 @@
             toggleLoader(false);
         }
 
-        function confirmarModificar(nivelLabel) {
-            const nNorm = nivelLabel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            const d = cacheData[nNorm];
-            const edicionesActuales = d.miApuesta ? d.miApuesta.ediciones : 0;
-            if (edicionesActuales >= 3) {
-                document.getElementById('modal-title').innerText = "SIN INTENTOS";
-                document.getElementById('modal-text').innerText = "Ya has utilizado tus tres oportunidades de modificación.\n\nNo se permiten más cambios a esta apuesta.";
+        function abrirResultados() {
+            if(!configGlobal.resultadosActivos) {
+                document.getElementById('modal-title').innerText = "PRÓXIMAMENTE";
+                document.getElementById('modal-text').innerText = "Los resultados se publicarán al finalizar el concurso de cada región.";
                 document.getElementById('btn-modal-ok').innerText = "ENTENDIDO";
                 document.getElementById('btn-modal-ok').onclick = closeModal;
                 document.getElementById('btn-modal-cancel').classList.add('hidden');
                 document.getElementById('modal-confirm').classList.remove('hidden');
-                return;
+            } else {
+                renderResultados();
+                showView('view-resultados');
             }
-            document.getElementById('modal-title').innerText = "ATENCIÓN";
-            document.getElementById('modal-text').innerText = `Vas a editar tu apuesta.\n\nEsta es la modificación #${edicionesActuales + 1}.\nCosto: $1.000 que se descontará del pozo.`;
-            document.getElementById('btn-modal-ok').innerText = "ENTENDIDO";
-            document.getElementById('btn-modal-ok').onclick = () => { closeModal(); abrirNivel(nivelLabel); };
-            document.getElementById('btn-modal-cancel').classList.remove('hidden');
-            document.getElementById('modal-confirm').classList.remove('hidden');
+        }
+
+        function showView(id) {
+            document.querySelectorAll('div[id^="view-"]').forEach(v => v.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            const cont = document.getElementById('atras-container');
+            if(id === 'view-region') cont.classList.add('invisible');
+            else {
+                cont.classList.remove('invisible');
+                document.getElementById('btn-atras').onclick = () => {
+                    if(id === 'view-dashboard') { localStorage.removeItem('podium_region'); showView('view-region'); } 
+                    else if(id === 'view-podium') { cancelarPodium(); }
+                    else if(id === 'view-resultados') { showView('view-region'); }
+                };
+            }
         }
 
         function abrirNivel(nivelLabel) {
@@ -239,7 +317,7 @@
             const f = bandas.filter(b => b.region.trim().toLowerCase() === app.region.trim().toLowerCase() && b.nivel.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === nNorm);
             f.forEach(b => {
                 const bt = document.createElement('button');
-                bt.className = 'premium-card p-5 text-[11px] font-black uppercase leading-tight btn-banda-item';
+                bt.className = 'premium-card p-5 text-[11px] font-black uppercase leading-tight btn-banda-item active:scale-95 transition-all';
                 bt.innerText = b.nombre; 
                 bt.onclick = () => {
                     const nNormActual = app.nivel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -275,10 +353,33 @@
             });
             for(let i=1; i<=3; i++) {
                 const slot = document.getElementById(`slot-${i}`);
-                if (slot) {
-                    slot.className = `podium-slot flex-col p-2 text-center ${app['p'+i] ? 'slot-filled' : ''} ${i > limite ? 'hidden' : ''}`;
-                }
+                if (slot) slot.className = `podium-slot flex-col p-2 text-center ${app['p'+i] ? 'slot-filled' : ''} ${i > limite ? 'hidden' : ''}`;
             }
+        }
+
+        function confirmarModificar(nivelLabel) {
+            const nNorm = nivelLabel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const d = cacheData[nNorm];
+            const edicionesActuales = d.miApuesta ? d.miApuesta.ediciones : 0;
+            const limiteEdiciones = configGlobal.config.limiteEdiciones || 3;
+            
+            if (edicionesActuales >= limiteEdiciones) {
+                document.getElementById('modal-title').innerText = "SIN INTENTOS";
+                document.getElementById('modal-text').innerText = "Ya has utilizado tus oportunidades de modificación.\n\nNo se permiten más cambios a esta apuesta.";
+                document.getElementById('btn-modal-ok').innerText = "ENTENDIDO";
+                document.getElementById('btn-modal-ok').onclick = closeModal;
+                document.getElementById('btn-modal-cancel').classList.add('hidden');
+                document.getElementById('modal-confirm').classList.remove('hidden');
+                return;
+            }
+            
+            const costo = (configGlobal.config.costoEdicion || 1000).toLocaleString();
+            document.getElementById('modal-title').innerText = "ATENCIÓN";
+            document.getElementById('modal-text').innerText = `Vas a editar tu apuesta.\n\nEsta es la modificación #${edicionesActuales + 1}.\nCosto: $${costo} que se descontará del pozo.`;
+            document.getElementById('btn-modal-ok').innerText = "ENTENDIDO";
+            document.getElementById('btn-modal-ok').onclick = () => { closeModal(); abrirNivel(nivelLabel); };
+            document.getElementById('btn-modal-cancel').classList.remove('hidden');
+            document.getElementById('modal-confirm').classList.remove('hidden');
         }
 
         function removeBand(s) { app['p'+s] = ''; syncUI(); }
@@ -291,8 +392,13 @@
             if(picks.length < limite) return alert(`COMPLETA LAS ${limite} POSICIONES DEL PÓDIUM`);
             const uniquePicks = new Set(picks);
             if(uniquePicks.size !== limite) return alert('UNA BANDA NO PUEDE ESTAR EN DOS POSICIONES');
+            
+            const costoE = (configGlobal.config.costoEntrada || 20000).toLocaleString();
+            const costoEd = (configGlobal.config.costoEdicion || 1000).toLocaleString();
+            const limiteEd = configGlobal.config.limiteEdiciones || 3;
+
             document.getElementById('modal-title').innerText = "¿CONFIRMAR?";
-            document.getElementById('modal-text').innerText = app.existe ? `MODIFICAR COSTARÁ $1.000.\nINTENTO: ${app.ediciones + 1} DE 3.` : `ESTA APUESTA TIENE UN VALOR DE $20.000.`;
+            document.getElementById('modal-text').innerText = app.existe ? `MODIFICAR COSTARÁ $${costoEd}.\nINTENTO: ${app.ediciones + 1} DE ${limiteEd}.` : `ESTA APUESTA TIENE UN VALOR DE $${costoE}.`;
             document.getElementById('btn-modal-ok').innerText = "SÍ, ENVIAR";
             document.getElementById('btn-modal-ok').onclick = execSave;
             document.getElementById('btn-modal-cancel').classList.remove('hidden');
@@ -307,22 +413,6 @@
                 alert('¡ÉXITO!');
                 localStorage.removeItem('podium_nivel');
                 await cargarDatosRegion(app.region); 
-            } catch(e) { alert('ERROR'); }
-            toggleLoader(false);
-        }
-
-        async function verEstadisticas(n) {
-            toggleLoader(true, "OBTENIENDO STATS...");
-            try {
-                const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'getStats', region: app.region, nivel: n }) });
-                const d = await r.json();
-                let txt = d.stats.length > 0 ? d.stats.map(s => `- ${s.nombre}`).join('\n') : "- SIN DATOS -";
-                document.getElementById('modal-title').innerText = "ESTADÍSTICAS";
-                document.getElementById('modal-text').innerText = "LAS DOS BANDAS MÁS SELECCIONADAS:\n" + txt;
-                document.getElementById('btn-modal-ok').innerText = "CERRAR";
-                document.getElementById('btn-modal-ok').onclick = closeModal;
-                document.getElementById('btn-modal-cancel').classList.add('hidden');
-                document.getElementById('modal-confirm').classList.remove('hidden');
             } catch(e) { alert('ERROR'); }
             toggleLoader(false);
         }
@@ -351,7 +441,23 @@
             toggleLoader(false);
         }
 
-        function closeModal() { document.getElementById('modal-confirm').classList.add('hidden'); }
+        async function verEstadisticas(n) {
+            toggleLoader(true, "OBTENIENDO STATS...");
+            try {
+                const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'getStats', region: app.region, nivel: n }) });
+                const d = await r.json();
+                let txt = d.stats.length > 0 ? d.stats.map(s => `- ${s.nombre}`).join('\n') : "- SIN DATOS -";
+                document.getElementById('modal-title').innerText = "ESTADÍSTICAS";
+                document.getElementById('modal-text').innerText = "LAS DOS BANDAS MÁS SELECCIONADAS:\n" + txt;
+                document.getElementById('btn-modal-ok').innerText = "CERRAR";
+                document.getElementById('btn-modal-ok').onclick = closeModal;
+                document.getElementById('btn-modal-cancel').classList.add('hidden');
+                document.getElementById('modal-confirm').classList.remove('hidden');
+            } catch(e) { alert('ERROR'); }
+            toggleLoader(false);
+        }
+
+        function closeModal() { document.getElementById('modal-confirm').classList.add('hidden'); document.getElementById('btn-modal-cancel').classList.remove('hidden'); }
         function logout() { localStorage.clear(); location.reload(); }
     </script>
 </body>
